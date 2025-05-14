@@ -1,0 +1,94 @@
+ion-content {
+  background: white;
+}
+
+ion-chip {
+  font-size: 12px;
+  &.bg-secondary {
+    background: var(--ion-color-secondary);
+    color: white;
+    ion-icon {
+      color: white;
+    }
+  }
+  &.bg-"" {
+    background: var(--ion-color-primary);
+    color: white;
+    ion-icon {
+      color: white;
+    }
+  }
+
+  &.bg-warning {
+    background: var(--ion-color-warning);
+    color: white;
+    ion-icon {
+      color: white;
+    }
+  }
+
+  &.bg-success {
+    background: var(--ion-color-success);
+    color: white;
+    ion-icon {
+      color: white;
+    }
+  }
+
+  &.bg-danger {
+    background: var(--ion-color-danger);
+    color: white;
+    ion-icon {
+      color: white;
+    }
+  }
+
+  background: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.12);
+  color: black;
+  ion-icon {
+    color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.54);
+  }
+}
+
+ion-card {
+  &.disabled {
+    opacity: 0.7;
+  }
+  &:not(:first-child) {
+    margin-top: 10px;
+  }
+}
+
+ion-card-content {
+  h3 {
+    margin: 0;
+    font-weight: 600;
+    color: black;
+  }
+  p {
+    margin: 0;
+  }
+
+  h2 {
+    color: black;
+    font-weight: 600;
+    overflow: hidden;
+    width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+ion-toggle {
+  color: var(--text-light);
+}
+.toggle-label {
+  text-align: center;
+  display: block;
+  line-height: 1.2;
+}

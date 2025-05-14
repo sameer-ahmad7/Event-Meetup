@@ -1,0 +1,79 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Chats</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [forceOverscroll]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="chevron-down-circle-outline"
+      pullingText="Pull to refresh"
+      refreshingSpinner="circles"
+      refreshingText="Refreshing..."
+    >
+    </ion-refresher-content>
+  </ion-refresher>
+
+  @if(isLoading){
+  <div class="h-full flex flex-col items-center justify-center">
+    <ion-spinner name="circular"></ion-spinner>
+  </div>
+
+  }@else { @for (event of events; track event.eventId) {
+  <ion-card (click)="gotoDetails(event)">
+    <ion-card-content>
+      <div class="flex flex-col gap-[10px]">
+        <div class="flex items-start gap-[10px]">
+          <div class="profile_img">
+            @if(event.businessClient.imageProfileB64){
+            <img
+              class="photo"
+              [src]="sharedService.getImageUrl(event.businessClient.imageProfileB64)"
+            />
+
+            }@else{
+            <img class="photo" src="assets/images/mock/restaurant-mock.png" />
+
+            }
+          </div>
+          <div class="flex flex-col gap-[2px] overflow-hidden">
+            <h4 class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
+              {{event.name}}
+            </h4>
+            <div class="flex items-center justify-between">
+              <p class="ion-no-margin text-(--text-light)">
+                {{event.startingDate | date: 'dd LLLL yyyy'}} |
+                {{event.startingDate | date: 'shortTime'}}
+              </p>
+			  @if(chatCountMap && chatCountMap[event.eventId] && chatCountMap[event.eventId]>0){
+				<ion-badge>{{chatCountMap[event.eventId]}}</ion-badge>
+			  }
+            </div>
+            <div class="flex items-center gap-[10px]">
+              <ion-chip>
+                <span
+                  class="fi fi-{{event.language.isoCodeLanguage}} me-2 mt-3"
+                ></span
+                ><span class="language-title"
+                  >{{event.language.name | titlecase}}</span
+                >
+              </ion-chip>
+              @if(sharedService.getAcceptedParticipants(event).length>0){
+              <p class="text-[black] font-[600]">
+                {{sharedService.getAcceptedParticipants(event).length}}
+                participants
+              </p>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+  }@empty {
+  <div class="h-full flex flex-col items-center justify-center">
+    <p>There are no active chats</p>
+  </div>
+  } }
+</ion-content>

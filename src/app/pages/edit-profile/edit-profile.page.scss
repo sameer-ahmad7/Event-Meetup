@@ -1,0 +1,102 @@
+ion-header {
+  .header {
+    padding-left: 16px;
+    padding-right: 16px;
+    // padding-top: var(--ion-safe-area-top, 10px);
+    .profile_img {
+      min-width: 100px;
+      width: 100px;
+      height: 100px;
+    }
+  }
+}
+.avatar {
+  position: relative;
+  .profile_img {
+    width: 100px;
+    height: 100px;
+  }
+  .camera-btn {
+    background: var(--ion-color-primary);
+    border-radius: 50%;
+    position: absolute;
+    bottom: 0px;
+    right: 0;
+    ion-icon {
+      color: white;
+    }
+  }
+}
+
+.progress-card {
+  margin: 0;
+  margin-bottom: 16px;
+}
+
+.social-card {
+  margin: 0;
+  margin-bottom: 16px;
+  ion-card-header {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  ion-card-title {
+    font-size: 16px;
+  }
+  .social-list {
+    .facebook-icon {
+      color: #1877f2;
+    }
+    .instagram-icon {
+      color: #d62976;
+    }
+    .tiktok-icon {
+      color: #010101;
+    }
+  }
+}
+
+ion-list {
+  height: 100%;
+  overflow: scroll;
+  padding-top: 0;
+//   padding-bottom: var(--safe-area-inset-bottom);
+
+  ion-item {
+    ion-input#date {
+      --border-width: 0;
+    }
+    ion-icon {
+      font-size: 18px;
+    }
+    margin-top: 16px;
+    &.select {
+      &::part(native) {
+        flex-direction: column;
+      }
+    }
+  }
+}
+
+.ng-select {
+  width: 100%;
+  min-height: 44px; // Matches ion-input height
+  display: flex;
+  align-items: center;
+}
+
+.outer {
+  width: 98%; /* Adjust the container width */
+  overflow-x: auto;
+  white-space: nowrap; /* Prevents content from wrapping */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE & Edge */
+}
+
+ion-chip {
+  background: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.12);
+  color: black;
+  ion-icon {
+    color: black;
+  }
+}

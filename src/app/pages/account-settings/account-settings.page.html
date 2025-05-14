@@ -1,0 +1,83 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Account Settings</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/tabs/home"
+        text=""
+        icon="chevron-back"
+      ></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if(isLoading){
+  <div class="flex flex-col h-full items-center justify-center">
+    <ion-spinner name="circular"></ion-spinner>
+  </div>
+  }@else {
+  <ion-list>
+    <ion-item-group>
+      <ion-item-divider mode="md">
+        <ion-label>Notifications</ion-label>
+      </ion-item-divider>
+      <ion-item lines="none">
+        <div class="flex flex-col w-[100%]">
+          <h3>Push Notifications</h3>
+          <ion-toggle
+            (ionChange)="onChangePushNotifications($event)"
+            [checked]="userConfig.subscribedToPushNotification"
+            >Enable / Disable push notifications</ion-toggle
+          >
+        </div>
+      </ion-item>
+      <ion-item lines="none">
+        <div class="flex flex-col w-[100%]">
+          <h3>Event Subscription</h3>
+          <ion-toggle
+            (ionChange)="onChangeUserSubscribesEventEmailToggle($event)"
+            [checked]="userConfig.emailNewRequests"
+            >Receive an email when a user subscribes to your event</ion-toggle
+          >
+        </div>
+      </ion-item>
+      <ion-item lines="none">
+        <div class="flex flex-col w-[100%]">
+          <h3>Newsletter</h3>
+          <ion-toggle
+            [checked]="userConfig.subscribedToNewsletter"
+            (ionChange)="onChangeSubscribeNewsletterToggle($event)"
+            >Subscribe / Unsubscribe to the newsletter</ion-toggle
+          >
+        </div>
+      </ion-item>
+    </ion-item-group>
+    <ion-item-group>
+      <ion-item-divider mode="md">
+        <ion-label>Privacy & Security</ion-label>
+      </ion-item-divider>
+	  
+      <ion-item (click)="onClickPrivacyPolicy()" lines="none" details>
+        <div class="flex flex-col w-[100%]">
+          <h3>Privacy Policy</h3>
+          <p>Review the accepted privacy policy</p>
+        </div>
+      </ion-item>
+	  <ion-item (click)="onViewBlockedUsers()" lines="none" details>
+        <div class="flex flex-col w-[100%]">
+			<ion-text color="primary">
+          <h3>Blocked Users</h3>
+		  </ion-text>
+        </div>
+      </ion-item>
+
+      <ion-item (click)="onDeleteAccount()" lines="none">
+        <ion-text color="danger">
+          <h3>Delete Account</h3>
+        </ion-text>
+      </ion-item>
+    </ion-item-group>
+  </ion-list>
+  }
+</ion-content>

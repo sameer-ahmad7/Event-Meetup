@@ -1,0 +1,28 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" fill="clear">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding" fullscreen>
+  <div class="flex flex-col h-full items-center">
+    <img
+      class="w-full"
+      src="assets/images/event/wizard-event-created.PNG"
+      alt=""
+    />
+    <h4 class="ion-margin-top">Well Done!</h4>
+    <p class="text-(--text-light)">You have Successfully Created your Event!</p>
+    <div class="ion-margin-top flex gap-[6px]">
+      <ion-button (click)="gotoHome()" expand="full" color="secondary">
+        Go to Home
+      </ion-button>
+      <ion-button (click)="gotoMyEvents()" expand="full" color="primary">
+        My Events
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

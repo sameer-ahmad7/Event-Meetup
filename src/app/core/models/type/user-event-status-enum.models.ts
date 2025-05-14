@@ -1,0 +1,5 @@
+export class UserEventStatusEnum {
+  ACCEPTED = "ACCEPTED"
+  WAITING_APPROVAL = "WAITING_APPROVAL"
+  REJECTED = "REJECTED"
+}

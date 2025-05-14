@@ -1,0 +1,123 @@
+<ion-header>
+  <ion-toolbar>
+    @if(isLoading){
+    <ion-progress-bar type="indeterminate"></ion-progress-bar>
+    } @else {
+    <ion-title>Filter Events</ion-title>
+
+    }
+  </ion-toolbar>
+</ion-header>
+
+@if(!isLoading){
+<div class="block">
+  <ion-list>
+    <ion-item id="startDate">
+      <ion-input
+        class="date-input"
+        mode="md"
+        label="From"
+        [(ngModel)]="formattedStartDate"
+        label-placement="stacked"
+        placeholder="Event Start Date"
+      >
+        <ion-icon
+          slot="end"
+          name="calendar-clear-outline"
+          aria-hidden="true"
+        ></ion-icon>
+      </ion-input>
+      <ion-popover trigger="startDate" mode="md">
+        <ng-template>
+          <ion-datetime
+            (ionChange)="onStartDateChanged($event)"
+            [(ngModel)]="startDate"
+            [showDefaultButtons]="true"
+            [min]="minStartDate"
+            presentation="date"
+          ></ion-datetime>
+        </ng-template>
+      </ion-popover>
+    </ion-item>
+
+    <ion-item id="endDate">
+      <ion-input
+        class="date-input"
+        mode="md"
+        label="To"
+        [(ngModel)]="formattedEndDate"
+        label-placement="stacked"
+        placeholder="Event End Date"
+      >
+        <ion-icon
+          slot="end"
+          name="calendar-clear-outline"
+          aria-hidden="true"
+        ></ion-icon>
+      </ion-input>
+      <ion-popover trigger="endDate" mode="md">
+        <ng-template>
+          <ion-datetime
+            (ionChange)="onEndDateChanged($event)"
+            [(ngModel)]="endDate"
+            [showDefaultButtons]="true"
+            [min]="minEndDate"
+            presentation="date"
+          ></ion-datetime>
+        </ng-template>
+      </ion-popover>
+    </ion-item>
+
+    <div class="form-wrapper">
+      <ion-label position="stacked" class="font-[600] text-[12px]">
+        Languages
+      </ion-label>
+      <ng-select
+        [(ngModel)]="selectedLanguage"
+        (ngModelChange)="onLanguageChange()"
+        [items]="languages"
+        bindLabel="name"
+        bindValue="isoCodeLanguage"
+        placeholder="Select event language"
+        [searchable]="true"
+      >
+        <ng-template ng-label-tmp let-item="item">
+          <div class="custom-option">
+            <span class="fi fi-{{ item.isoCodeLanguage }}"></span>
+            <p>{{ item.name | titlecase }}</p>
+          </div>
+        </ng-template>
+        <!-- Custom HTML in Options -->
+        <ng-template ng-option-tmp let-item="item">
+          <div class="custom-option">
+            <span class="fi fi-{{ item.isoCodeLanguage }}"></span>
+            <p>{{ item.name | titlecase }}</p>
+          </div>
+        </ng-template>
+      </ng-select>
+    </div>
+
+    <p class="ion-margin-start font-[600] mb-[4px] text-[12px]">Event Status</p>
+    @for (eventStatus of eventStatuses; track $index) {
+
+    <ion-item>
+      <ion-checkbox
+        [checked]="eventStatus.checked"
+        [(ngModel)]="eventStatus.checked"
+        (ngModelChange)="onChangeEventStatusCheck()"
+        labelPlacement="start"
+        >{{ eventStatus.description }}</ion-checkbox
+      >
+    </ion-item>
+    }
+  </ion-list>
+  <div class="btn-container ion-margin-top ion-padding-horizontal">
+    <ion-button (click)="clearFilters()" expand="full" color="secondary">
+      Reset
+    </ion-button>
+    <ion-button (click)="onApplyFilter()" expand="full" color="primary">
+      Apply
+    </ion-button>
+  </div>
+</div>
+}

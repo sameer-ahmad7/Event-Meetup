@@ -1,0 +1,59 @@
+<ion-header>
+	<ion-toolbar>
+		@if(isLoading){
+			<ion-progress-bar type="indeterminate"></ion-progress-bar>
+		}@else {
+			<ion-buttons slot="start">
+				<ion-back-button
+				defaultHref="/account-settings"
+				text=""
+				icon="chevron-back"
+				></ion-back-button>
+			</ion-buttons>
+			<ion-title>Blocked Users</ion-title>
+		}
+	</ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding">
+	@if(!isLoading){
+		@for (user of blockedUsers; track $index) {
+			@let fullName=user.firstName+' '+user.lastName;
+			<div class="flex justify-between items-center  participant">
+
+			<div class="flex items-center gap-[10px]  overflow-hidden">
+			  @if(!user.imageProfileB64){
+			  <ngx-avatars
+			  (click)="gotoProfile(user.userId===selfUser.userId?'/profile':'/profile/'+user.userId)"
+			  [size]="43"
+				[round]="true"
+				[name]="fullName"
+			  ></ngx-avatars>
+			  }@else {
+			  <div
+				class="profile_img"
+				(click)="gotoProfile(user.userId===selfUser.userId?'/profile':'/profile/'+user.userId)"
+			  >
+				<img
+				  [src]="sharedService.getImageUrl(user.imageProfileB64)"
+				  alt=""
+				/>
+			  </div>
+			  }
+				<h3
+				(click)="gotoProfile(user.userId===selfUser.userId?'/profile':'/profile/'+user.userId)"
+				  class="text-[black]  text-ellipsis overflow-hidden whitespace-nowrap"
+				>
+				  {{fullName}}
+				</h3>
+	</div>
+		<ion-button class="shrink-[0] font-[600] text-[14px]" (click)="unBlockUser(user)" fill="clear" color="primary">
+			UNBLOCK
+		</ion-button>	
+		</div>
+		}@empty {
+			<div class="h-full flex flex-col items-center justify-center">
+				<p>No users to show</p>
+			</div>
+		}
+	}
+</ion-content>

@@ -1,0 +1,79 @@
+<div class="h-full relative">
+  <div id="map" #mapContainer></div>
+  <div
+    [class.active-posts]="filteredEvents.length>0"
+    class="gps"
+    (click)="onCenterMyLocation()"
+  >
+    <ion-icon name="locate-outline"></ion-icon>
+  </div>
+
+  @if(filteredEvents.length>0){
+  <div class="absolute bottom-[6px] w-full ion-margin-top z-[2000]">
+    <swiper-container
+      slides-per-view="auto"
+      space-between="10"
+      class="custom-swiper"
+    >
+      @for (event of filteredEvents; track $index) {
+      <swiper-slide class="custom-slide">
+        <ion-card (click)="gotoDetails(event.eventId)">
+          <ion-card-header>
+            <div class="flex w-full items-stretch overflow-hidden">
+              <div class="w-[100px] shrink-[0]">
+                @if(event.businessClient.imageProfileB64){
+                <img
+                  class="w-full h-full object-cover"
+                  [src]="sharedService.getImageUrl(event.businessClient.imageProfileB64)"
+                />
+
+                }@else {
+                <img
+                  class="w-full h-full object-cover"
+                  src="assets/images/mock/restaurant-mock.png"
+                />
+
+                }
+              </div>
+              <div
+                class="flex flex-col p-[10px] grow-[1] min-w-[0] overflow-hidden"
+              >
+                <h4 class="text-[16px] m-[0] text-[black]">
+                  {{event.name | titlecase}}
+                </h4>
+                <div class="chip-container">
+                  <ion-chip>
+                    <span
+                      class="fi fi-{{event.language.isoCodeLanguage}}"
+                    ></span>
+                    <ion-label>{{event.language.name | titlecase}}</ion-label>
+                  </ion-chip>
+                  @let participants=getEventParticipants(event.participants);
+                  @if(participants.length>0){
+                  <ion-chip>
+                    <ion-icon name="people"></ion-icon>
+                    <ion-label
+                      >{{participants.length}} /
+                      {{event.participantSizeGroup.maxParticipants}}</ion-label
+                    >
+                  </ion-chip>
+
+                  }
+                </div>
+                <div class="mt-[10px] flex flex-col gap-[2px]">
+                  <p class="m-[0] text-(--text-light)">
+                    {{event.startingDate | date: 'dd LLLL yyyy'}} |
+                    {{event.startingDate | date: 'shortTime'}}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </ion-card-header>
+        </ion-card>
+      </swiper-slide>
+
+      }
+    </swiper-container>
+  </div>
+  }
+</div>

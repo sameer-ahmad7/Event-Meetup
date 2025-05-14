@@ -1,0 +1,49 @@
+<div class="block ion-margin-top ion-padding">
+	@if(isLoading){
+		<div class="h-full flex flex-col items-center justify-center">
+			<ion-spinner name="circular"></ion-spinner>
+		</div>		
+	}@else{
+		@for (participant of participants; track $index) {
+
+			@let fullName=participant.userAvatar.firstName+' '+participant.userAvatar.lastName;
+			<div class="flex justify-between items-center  participant">
+
+			<div class="flex items-center gap-[10px] overflow-hidden">
+			  @if(!participant.userAvatar.imageProfileB64){
+			  <ngx-avatars
+			  (click)="gotoProfile(participant.userAvatar.userId===userId?'/profile':'/profile/'+participant.userAvatar.userId)"
+			  [size]="43"
+				[round]="true"
+				[name]="fullName"
+			  ></ngx-avatars>
+			  }@else {
+			  <div
+				class="profile_img"
+				(click)="gotoProfile(participant.userAvatar.userId===userId?'/profile':'/profile/'+participant.userAvatar.userId)"
+			  >
+				<img
+				  [src]="sharedService.getImageUrl(participant.userAvatar.imageProfileB64)"
+				  alt=""
+				/>
+			  </div>
+			  }
+				<h3
+				(click)="gotoProfile(participant.userAvatar.userId===userId?'/profile':'/profile/'+participant.userAvatar.userId)"
+				  class="text-[black]  text-ellipsis overflow-hidden whitespace-nowrap"
+				>
+				  {{fullName}}
+				</h3>
+	</div>
+	@if(participant.userAvatar.userId!==userId){
+		<ion-button class="shrink-[0]" (click)="onOpenActionSheet(participant)" fill="clear" slot="icon-only">
+			<ion-icon name="ellipsis-horizontal"></ion-icon>
+		</ion-button>	
+	}
+
+
+
+</div>
+	}
+	}
+</div>

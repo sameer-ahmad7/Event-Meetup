@@ -1,0 +1,103 @@
+ion-header {
+  background: var(--ion-color-primary);
+  border-bottom-right-radius: 12px;
+  border-bottom-left-radius: 12px;
+  .header {
+    padding-top: var(--ion-safe-area-top, 10px);
+	margin-bottom: 16px;
+	h2{
+		color: white;
+	}
+    .profile_img {
+      min-width: 100px;
+      width: 100px;
+      height: 100px;
+    }
+  }
+  ion-toolbar {
+    position: absolute;
+    background: transparent; /* Make toolbar transparent to show image */
+    --background: transparent; /* Ensure background is transparent */
+    ion-back-button {
+      color: white !important;
+    }
+    ion-button {
+      ion-icon {
+        color: white;
+      }
+    }
+  }
+  ion-chip {
+    background: rgba(255, 255, 255, 0.8);
+    color: black;
+  }
+
+  .social-icons {
+    ion-button {
+      border-radius: 50%;
+      min-height: 32px;
+      min-width: 32px;
+      &.facebook-btn {
+        background: #1877f2;
+      }
+      &.instagram-btn {
+        background: #d62976;
+      }
+      &.tiktok-btn {
+        background: #010101;
+      }
+      ion-icon {
+        color: white;
+      }
+    }
+  }
+}
+
+ion-card {
+  &.progress-card {
+    margin: 0;
+    margin-bottom: 16px;
+  }
+}
+
+ion-chip {
+  background: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.12);
+  color: black;
+}
+
+.outer {
+  width: 98%; /* Adjust the container width */
+  overflow-x: auto;
+  white-space: nowrap; /* Prevents content from wrapping */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE & Edge */
+}
+
+ion-list {
+	height: 100%;
+	overflow: scroll;
+	padding-top: 0;
+	// padding-bottom: var(--safe-area-inset-bottom);
+  
+  ion-item {
+	&:not(.menu-item){
+		--padding-start:0;
+		--padding:end:0;
+		&::part(native) {
+		  flex-direction: column !important;
+		  align-items: stretch !important;
+		}
+		ion-label {
+		  color: black;
+		  font-weight: 600;
+		}
+		ion-text {
+		  min-height: 36px;
+		}
+		margin-bottom: 10px;
+		padding-bottom: 6px;
+		border-bottom: 1px solid var(--border-line-color);
+	}
+
+  }
+}

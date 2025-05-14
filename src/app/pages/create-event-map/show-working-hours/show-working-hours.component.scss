@@ -1,0 +1,11 @@
+.block {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+//   padding-bottom: var(--safe-area-inset-bottom) !important;
+  h2 {
+    font-weight: 600;
+  }
+}

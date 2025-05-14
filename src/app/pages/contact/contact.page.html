@@ -1,0 +1,90 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/" text="" icon="chevron-back">
+      </ion-back-button>
+    </ion-buttons>
+    <ion-title>Contact & Support</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="formData">
+    <ion-list>
+      <ion-item>
+        <ion-select
+          formControlName="subject"
+          label="Communication Type"
+          labelPlacement="stacked"
+          type="text"
+          placeholder="Select communication type"
+        >
+          @for (type of communicationTypes; track $index) {
+          <ion-select-option [value]="type"> {{type}} </ion-select-option>
+
+          }
+        </ion-select>
+      </ion-item>
+      @if(formData.controls['subject'].touched &&
+      formData.controls['subject'].hasError('required')){
+      <ion-text class="error" color="danger">
+        <p class="ion-margin-horizontal">Communication Type is required.</p>
+      </ion-text>
+
+      }
+
+      <ion-item lines="none">
+        <ion-textarea
+          maxlength="200"
+          autoGrow
+          [counter]="true"
+          formControlName="message"
+          label="Message"
+          labelPlacement="stacked"
+          placeholder="Write a message..."
+        >
+        </ion-textarea>
+      </ion-item>
+
+      @if(formData.controls['message'].touched &&
+      formData.controls['subject'].invalid){
+      <ion-text class="error" color="danger">
+        <p class="ion-margin-horizontal">Enter a valid message</p>
+      </ion-text>
+
+      }
+    </ion-list>
+    @if(submitted){
+    <ion-text color="success">
+      <p class="ion-margin-horizontal">Message sent. Thanks!</p>
+    </ion-text>
+
+    }
+
+    <div class="btn-container ion-margin-top">
+      @if(!submitted){
+      <ion-button
+        [disabled]="isSubmitting || formData.invalid"
+        (click)="onSubmit()"
+        expand="full"
+        color="primary"
+      >
+        @if(isSubmitting){
+        <ion-spinner name="circular"></ion-spinner>
+        }@else { Submit }
+      </ion-button>
+
+      }@else {
+      <ion-button routerLink="/tabs/home" expand="full" color="primary">
+        Go to Home
+      </ion-button>
+      }
+    </div>
+  </form>
+  <!-- @if(submitted){
+	<div *ngIf="submitted"
+	class="small-text text-success">Message sent. Thanks!
+  </div>
+  
+  } -->
+</ion-content>

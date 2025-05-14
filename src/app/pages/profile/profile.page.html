@@ -1,0 +1,268 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/"
+        text=""
+        icon="chevron-back"
+      ></ion-back-button>
+    </ion-buttons>
+    @if(userId===userSessionId){
+    <ion-buttons slot="end">
+      <ion-button routerLink="/edit-profile" fill="clear">
+        <ion-icon name="pencil"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    }@else{
+		@if(!isLoading){
+			<ion-buttons slot="end">
+				<ion-button id="menu-trigger"  fill="clear" slot="icon-only">
+					<ion-icon name="ellipsis-vertical"></ion-icon>
+				</ion-button>
+				<ion-popover #popover trigger="menu-trigger" triggerAction="click">
+					<ng-template>
+					  <ion-content class="ion-padding-horizontal">
+						<ion-list>
+							<ion-item class="menu-item" (click)="isBlocked?unBlockUser(popover):blockUser(popover)" style="margin: 0;" >
+								<ion-label color="primary">
+									@if(isBlocked){
+										Unblock
+									}@else{
+										Block
+									}
+								</ion-label>
+							</ion-item>
+		</ion-list>
+		</ion-content>
+		</ng-template>
+		</ion-popover>
+		
+			</ion-buttons>
+		}
+	}
+  </ion-toolbar>
+  @if(!isLoading){
+  <div class="header">
+    <div class="flex flex-col items-center justify-center gap-[10px] mt-[10px]">
+      @if(user.imageProfileB64){
+      <div class="profile_img">
+        <img [src]="sharedService.getImageUrl(user.imageProfileB64)" alt="" />
+      </div>
+      }@else{
+      <ngx-avatars
+        [size]="100"
+        [name]="user.firstName + ' ' + user.lastName"
+        [round]="true"
+      ></ngx-avatars>
+      }
+      <h2>{{user.firstName + ' ' + user.lastName}}</h2>
+      <div class="flex gap-[6px] items-center">
+        @if(user.livingCountry){
+        <ion-chip>
+          <span class="fi fi-{{user.livingCountry | lowercase}}"></span>
+          <ion-label>{{getCountryName(user.livingCountry)}}</ion-label>
+        </ion-chip>
+        }
+        <ion-chip>
+          <ion-label>
+            {{user.age}} {{getName() === 'Deleted User' ? '' : 'years old'}}
+          </ion-label>
+        </ion-chip>
+      </div>
+
+      @if(user.instagramNickname || user.facebookNickname ||
+      user.tiktokUsername){
+      <div class="flex items-center gap-[6px] social-icons mb-[10px]">
+        @if(user.facebookNickname){
+        <ion-button
+          target="_blank"
+          fill="clear"
+          class="facebook-btn"
+          href="https://facebook.com/{{user.facebookNickname}}"
+        >
+          <ion-icon slot="icon-only" name="logo-facebook"></ion-icon>
+        </ion-button>
+        }@if(user.instagramNickname){
+        <ion-button
+          target="_blank"
+          href="https://instagram.com/{{user.instagramNickname}}"
+          fill="clear"
+          class="instagram-btn"
+        >
+          <ion-icon slot="icon-only" name="logo-instagram"></ion-icon>
+        </ion-button>
+        } @if(user.tiktokUsername){
+        <ion-button
+          target="_blank"
+          href="https://tiktok.com/{{user.tiktokUsername}}"
+          fill="clear"
+          class="tiktok-btn"
+        >
+          <ion-icon slot="icon-only" name="logo-tiktok"></ion-icon>
+        </ion-button>
+        }
+      </div>
+
+      }
+    </div>
+  </div>
+  }
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if(isLoading){
+  <div class="h-full flex items-center justify-center">
+    <ion-spinner type="indertiminate" name="circular"></ion-spinner>
+  </div>
+  }@else { @if(userId===userSessionId){ @if(user.completionRate<100){
+  <div routerLink="/edit-profile" class="progress mb-[10px]">
+    <div class="flex items-center justify-between">
+      <div class="flex gap-[6px] items-center">
+        <h4 class="text-[black] font-[600]">Profile Completion:</h4>
+        <ion-text color="primary">
+          <p>{{user.completionRate}}%</p>
+        </ion-text>
+      </div>
+    </div>
+    <ion-progress-bar
+      [value]="user.completionRate/100"
+      type="determinate"
+    ></ion-progress-bar>
+  </div>
+  <div class="separator ion-margin-vertical"></div>
+  }
+
+  <!-- @else {
+  <ion-card class="progress-card" routerLink="edit-profile">
+    <ion-card-content>
+      <div class="flex flex-col gap-[6px] items-center">
+        <img width="48" height="48" src="assets/images/event/confetti.png" />
+
+        <h2 style="font-size: 18px; font-weight: 600">
+          Now your profile looks perfect!
+        </h2>
+        <p class="ion-no-margin text-center">
+          This will help show other participants all the information about you.
+        </p>
+      </div>
+    </ion-card-content>
+  </ion-card>
+  }  -->
+
+  }
+
+  <ion-list>
+    <ion-item lines="none">
+      <ion-label position="stacked">Country of Origin</ion-label>
+      @if(user.fromCountry){
+      <div class="flex items-center gap-[6px] mt-[10px]">
+        <ion-chip>
+          <span class="fi fi-{{user.fromCountry | lowercase}}"></span>
+          <ion-label>{{getCountryName(user.fromCountry)}}</ion-label>
+        </ion-chip>
+      </div>
+      }@else {
+      <ion-text class="mt-[10px]"
+        >No information about the country of origin</ion-text
+      >
+      }
+    </ion-item>
+
+    <ion-item lines="none">
+      <ion-label position="stacked">Languages</ion-label>
+      @if(user.languages.length>0){
+      <div class="outer mt-[10px]">
+        @for(userLanguage of user.languages;track $index){
+        <ion-chip>
+          <span
+            class="fi fi-{{userLanguage.language.isoCodeLanguage}} me-2 mt-3"
+          ></span
+          ><span class="language-title"
+            >{{userLanguage.language.name | titlecase}}</span
+          ><span class="ms-1"
+            >&nbsp;-&nbsp;{{userLanguage.level.levelName}}</span
+          >
+        </ion-chip>
+        }
+      </div>
+      }@else {
+      <ion-text class="mt-[10px]"
+        >No information about the spoken languages</ion-text
+      >
+      }
+    </ion-item>
+    <ion-item lines="none">
+      <ion-label position="stacked">Interests</ion-label>
+      @if(user.interests.length>0){
+      <div class="outer mt-[10px]">
+        @for (interest of user.interests; track $index) {
+        <ion-chip>{{interest.description}}</ion-chip>
+        }
+      </div>
+      }@else {
+      <ion-text class="mt-[10px]">No information about the interests</ion-text>
+      }
+    </ion-item>
+    <ion-item lines="none">
+      <ion-label position="stacked">Biography</ion-label>
+      @if(user.descProfile){
+      <ion-text class="mt-[10px]">{{user.descProfile}}</ion-text>
+      }@else {
+      <ion-text class="mt-[10px]">No information about the biography</ion-text>
+      }
+    </ion-item>
+    <ion-item lines="none">
+      <ion-label position="stacked">Feedback</ion-label>
+      @if(userFeedbacks.length>0){
+      <div class="flex flex-col w-full gap-[6px] mt-[10px]">
+        @for (feedback of userFeedbacks; track $index) {
+        <div class="flex items-start justify-between ion-margin-top w-full">
+          <div class="flex items-start gap-[10px] overflow-hidden">
+            @if(feedback.receivedFrom.imageProfileB64){
+            <div
+              routerLink="/profile/{{feedback.receivedFrom.userId}}"
+              class="profile_img"
+            >
+              <img
+                [src]="sharedService.getImageUrl(feedback.receivedFrom.imageProfileB64)"
+                alt=""
+              />
+            </div>
+            }@else {
+            <ngx-avatars
+              routerLink="/profile/{{feedback.receivedFrom.userId}}"
+              [size]="43"
+              [round]="true"
+              [name]="feedback.receivedFrom.firstName +' '+ feedback.receivedFrom.lastName"
+            ></ngx-avatars>
+            }
+
+            <div class="flex flex-col gap-[2px] overflow-hidden">
+              <h3
+                routerLink="/profile/{{feedback.receivedFrom.userId}}"
+                class="text-[black] shrink-[1] grow-[0] overflow-hidden whitespace-nowrap text-ellipsis"
+              >
+                {{feedback.receivedFrom.firstName}}
+                {{feedback.receivedFrom.lastName}}
+              </h3>
+              <bar-rating [readonly]="true" [max]="5" [rate]="feedback.rate" />
+			  <p>{{feedback.content}}</p>
+			</div>
+          </div>
+          <p class="ion-no-margin text-(--text-light) shrink-[0]">
+            {{feedback.dateFeedback | timeAgo}}
+          </p>
+        </div>
+        @if($index!==userFeedbacks.length-1){
+        <div class="separator"></div>
+        } }
+      </div>
+
+      }@else {
+      <ion-text class="mt-[10px]">No feedback received yet</ion-text>
+      }
+    </ion-item>
+  </ion-list>
+
+  }
+</ion-content>

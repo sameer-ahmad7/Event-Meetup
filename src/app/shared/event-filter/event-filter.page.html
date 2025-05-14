@@ -1,0 +1,88 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Filter Events</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<div class="block">
+  <ion-list>
+    <div class="form-wrapper">
+      <ion-label position="stacked" class="font-[600] text-[12px]">
+        Language
+      </ion-label>
+      <ng-select
+        [(ngModel)]="selectedLanguage"
+        (ngModelChange)="onSelectedLanguageChange()"
+        [items]="languages()"
+        bindLabel="name"
+        bindValue="isoCodeLanguage"
+        placeholder="Select event language"
+        [searchable]="true"
+      >
+        <ng-template ng-label-tmp let-item="item">
+          <div class="custom-option">
+            <span class="fi fi-{{ item.isoCodeLanguage }}"></span>
+            <p>{{ item.name | titlecase }}</p>
+          </div>
+        </ng-template>
+        <!-- Custom HTML in Options -->
+        <ng-template ng-option-tmp let-item="item">
+          <div class="custom-option">
+            <span class="fi fi-{{ item.isoCodeLanguage }}"></span>
+            <p>{{ item.name | titlecase }}</p>
+          </div>
+        </ng-template>
+      </ng-select>
+    </div>
+    <ion-item id="date">
+      <ion-input
+        class="date-input"
+        mode="md"
+        label="Date"
+        [value]="formattedDate"
+        label-placement="stacked"
+        placeholder="Event Date"
+      >
+        <ion-icon
+          slot="end"
+          name="calendar-clear-outline"
+          aria-hidden="true"
+        ></ion-icon>
+      </ion-input>
+      <ion-popover trigger="date" mode="md">
+        <ng-template>
+          <ion-datetime
+            (ionChange)="onStartDateChanged($event)"
+            [value]="startDate"
+            [showDefaultButtons]="true"
+            [min]="minDate"
+            presentation="date"
+          ></ion-datetime>
+        </ng-template>
+      </ion-popover>
+    </ion-item>
+    <ion-item>
+      <ion-select
+        label="Type"
+        label-placement="stacked"
+        placeholder="Select Event Type"
+        name="type"
+        [(ngModel)]="selectedEventType"
+      >
+        @for (eventType of eventTypes(); track $index) {
+        <ion-select-option [value]="eventType.id"
+          >{{eventType.description}}</ion-select-option
+        >
+        }
+      </ion-select>
+    </ion-item>
+  </ion-list>
+  <div class="btn-container ion-margin-top ion-padding-horizontal">
+    <ion-button (click)="onResetFilter()" expand="full" color="secondary">
+      Reset
+    </ion-button>
+    <ion-button (click)="onApplyFilter()" expand="full" color="primary">
+      Apply
+    </ion-button>
+  </div>
+</div>

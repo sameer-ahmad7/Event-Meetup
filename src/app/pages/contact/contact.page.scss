@@ -1,0 +1,13 @@
+ion-list {
+  height: 100%;
+  overflow: scroll;
+  padding-top: 0;
+//   padding-bottom: var(--safe-area-inset-bottom);
+
+  ion-item {
+    ion-icon {
+      font-size: 18px;
+    }
+    margin-top: 16px;
+  }
+}

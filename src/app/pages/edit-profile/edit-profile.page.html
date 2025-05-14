@@ -1,0 +1,490 @@
+<ion-header>
+  <ion-toolbar>
+    @if(isLoading){
+    <ion-progress-bar type="indeterminate"></ion-progress-bar>
+    }@else {
+		@if(!isCompleteProfile){
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/profile"
+        text=""
+        icon="chevron-back"
+      ></ion-back-button>
+    </ion-buttons>
+}@else {
+	<ion-buttons slot="end">
+		<ion-button id="menu-trigger"  fill="clear">
+			<ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+		</ion-button>
+		<ion-popover #popover trigger="menu-trigger" triggerAction="click">
+            <ng-template>
+              <ion-content class="ion-padding-horizontal">
+                <ion-list>
+					<ion-item lines="none" style="margin: 0;" (click)="onLogout()">
+						<ion-label color="primary">Logout</ion-label>
+					</ion-item>
+</ion-list>
+</ion-content>
+</ng-template>
+</ion-popover>
+	</ion-buttons>
+}
+    <ion-title>Profile</ion-title>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" #content>
+  @if(!isLoading){ 
+  <div class="flex flex-col items-center justify-center gap-[10px]">
+    <div class="avatar">
+      @if(imageURL){
+      <div class="profile_img">
+        <img
+          [src]="imageURL.includes('base64')?imageURL:sharedService.getImageUrl(imageURL)"
+          alt=""
+        />
+      </div>
+      }@else{
+      <ngx-avatars
+        [size]="100"
+        [name]="user.firstName + ' ' + user.lastName"
+        [round]="true"
+      ></ngx-avatars>
+      }
+      <ion-button (click)="openFilePicker()" fill="clear" class="camera-btn">
+        <ion-icon name="camera" slot="icon-only"></ion-icon>
+      </ion-button>
+      <!-- <input
+        #file
+        (change)="showPreview($event)"
+        accept="image/*"
+        class="hidden"
+        id="profile-img-file-input"
+        type="file"
+      /> -->
+    </div>
+	@if(user.completionRate<100){
+		<div class="progress ion-margin-vertical">
+		  <div class="flex items-center justify-between">
+			<div class="flex gap-[6px] items-center">
+			  <h4 class="text-[black] font-[600]">Profile Completion:</h4>
+			  <ion-text color="primary">
+				<p>{{user.completionRate}}%</p>
+			  </ion-text>
+			</div>
+			<ion-button id="click-trigger" fill="clear">
+			  <ion-icon name="help-circle" slot="icon-only"></ion-icon>
+			</ion-button>
+	  
+			<ion-popover side="left" trigger="click-trigger" triggerAction="click">
+			  <ng-template>
+				<ion-content class="ion-padding">
+				  <p class="ion-no-margin px-[4px]">{{getMissingData()}}</p>
+				</ion-content>
+			  </ng-template>
+			</ion-popover>
+		  </div>
+		  <ion-progress-bar
+			[value]="user.completionRate/100"
+			type="determinate"
+		  ></ion-progress-bar>
+		</div>
+		}
+
+
+		<div class="ion-margin-vertical separator"></div>
+	  
+  </div>
+
+  <ion-segment mode="ios" [(ngModel)]="selectedSegment">
+    <ion-segment-button value="personal">
+      <ion-label>Personal Data</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="interests">
+      <ion-label>Interests & Language</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  @if(selectedSegment==='personal'){
+  <form [formGroup]="profileForm" class="ion-margin-top">
+    <ion-card class="social-card">
+      <ion-card-header>
+        <div
+          (click)="isSocialsOpen=!isSocialsOpen"
+          class="flex items-center justify-between"
+        >
+          <ion-card-title>Socials</ion-card-title>
+          <ion-button fill="clear">
+            @if(isSocialsOpen){
+            <ion-icon
+              color="dark"
+              name="chevron-up"
+              slot="icon-only"
+            ></ion-icon>
+            }@else {
+            <ion-icon
+              color="dark"
+              name="chevron-down"
+              slot="icon-only"
+            ></ion-icon>
+
+            }
+          </ion-button>
+        </div>
+      </ion-card-header>
+      @if(isSocialsOpen){
+      <ion-card-content>
+        <ion-list class="social-list">
+          <ion-item>
+            <ion-input
+			formControlName="facebookNickname"
+              placeholder="@facebook_nickname"
+            >
+              <ion-icon
+                class="facebook-icon"
+                slot="start"
+                name="logo-facebook"
+                aria-hidden="true"
+              ></ion-icon>
+            </ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input
+			formControlName="instagramNickname"
+              placeholder="@instagram_nickname"
+            >
+              <ion-icon
+                class="instagram-icon"
+                slot="start"
+                name="logo-instagram"
+                aria-hidden="true"
+              ></ion-icon>
+            </ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input
+			formControlName="tiktokNickname"
+              placeholder="@tiktok_nickname"
+            >
+              <ion-icon
+                class="tiktok-icon"
+                slot="start"
+                name="logo-tiktok"
+                aria-hidden="true"
+              ></ion-icon>
+            </ion-input>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+      }
+    </ion-card>
+
+    <ion-list>
+      <ion-item>
+        <ion-input
+          formControlName="firstName"
+          label="First Name"
+          labelPlacement="stacked"
+          type="text"
+          placeholder="Enter your first name"
+        ></ion-input>
+      </ion-item>
+      @if(
+      profileForm.controls['firstName'].hasError('required')){
+      <ion-text class="error" color="danger">
+        <p class="ion-margin-horizontal">First Name is required.</p>
+      </ion-text>
+
+      }
+      <ion-item>
+        <ion-input
+          formControlName="lastName"
+          label="Last Name"
+          labelPlacement="stacked"
+          type="text"
+          placeholder="Enter your last name"
+        ></ion-input>
+      </ion-item>
+      @if(      profileForm.controls['lastName'].hasError('required')){
+      <ion-text class="error" color="danger">
+        <p class="ion-margin-horizontal">Last Name is required.</p>
+      </ion-text>
+      }
+      <ion-item id="date">
+        <ion-input
+          class="date-input"
+          [value]="formattedBirthdate"
+          label="Birthdate"
+          placeholder="Enter your birthdate"
+          label-placement="stacked"
+        ></ion-input>
+        <ion-icon
+          name="calendar-clear-outline"
+          aria-hidden="true"
+          slot="end"
+        ></ion-icon>
+        <ion-popover trigger="date" size="cover" mode="md">
+          <ng-template>
+            <ion-datetime
+              formControlName="birthday"
+              (ionChange)="onBirthDateChanged($event)"
+              [showDefaultButtons]="true"
+              [max]="maxDate"
+              presentation="date"
+            ></ion-datetime>
+          </ng-template>
+        </ion-popover>
+      </ion-item>
+      @if(
+      profileForm.controls['birthday'].hasError('required')){
+      <ion-text class="error" color="danger">
+        <p class="ion-margin-horizontal">Birthdate is required.</p>
+      </ion-text>
+
+      }
+      <ion-item>
+        <ion-select
+          [compareWith]="compareWithGender"
+          label="Gender"
+          label-placement="stacked"
+          placeholder="Select Gender"
+          formControlName="gender"
+        >
+          @for (gender of genders; track $index) {
+          <ion-select-option [value]="gender"
+            >{{gender.description}}</ion-select-option
+          >
+          }
+        </ion-select>
+      </ion-item>
+      @if(
+      profileForm.controls['gender'].hasError('required')){
+      <ion-text class="error" color="danger">
+        <p class="ion-margin-horizontal">Gender is required.</p>
+      </ion-text>
+
+      }
+      <ion-item>
+        <ion-input
+          formControlName="email"
+          label="Email"
+          labelPlacement="stacked"
+          type="email"
+          placeholder="Enter your email"
+        ></ion-input>
+      </ion-item>
+    </ion-list>
+    <ion-item>
+      <ion-input
+        formControlName="phoneNumber"
+        label="Phone Number (Only visible to restaurants)"
+        labelPlacement="stacked"
+        type="text"
+        placeholder="Enter your phone number"
+      ></ion-input>
+    </ion-item>
+
+    <div class="form-wrapper">
+      <ion-label class="font-[600] text-[12px]" position="stacked">
+        Where are you living?
+      </ion-label>
+      <ng-select
+        formControlName="livingCountry"
+        [items]="countries"
+        bindLabel="name"
+        bindValue="isoCodeCountry"
+        placeholder="Select country"
+        [searchable]="true"
+      >
+        <ng-template ng-label-tmp let-item="item">
+          <div class="custom-option">
+            <span class="fi fi-{{ item.isoCodeCountry | lowercase }}"></span>
+            <p>{{ item.name | titlecase }}</p>
+          </div>
+        </ng-template>
+        <!-- Custom HTML in Options -->
+        <ng-template ng-option-tmp let-item="item">
+          <div class="custom-option">
+            <span class="fi fi-{{ item.isoCodeCountry | lowercase }}"></span>
+            <p>{{ item.name | titlecase }}</p>
+          </div>
+        </ng-template>
+      </ng-select>
+    </div>
+	@if(
+	profileForm.controls['livingCountry'].hasError('required')){
+	<ion-text class="error" color="danger">
+	  <p class="ion-margin-horizontal">Living Country is required.</p>
+	</ion-text>
+
+	}
+
+    <div class="form-wrapper">
+      <ion-label class="font-[600] text-[12px]" position="stacked">
+        Where are you from?
+      </ion-label>
+      <ng-select
+        formControlName="fromCountry"
+        [items]="countries"
+        bindLabel="name"
+        bindValue="isoCodeCountry"
+        placeholder="Select country"
+        [searchable]="true"
+      >
+        <ng-template ng-label-tmp let-item="item">
+          <div class="custom-option">
+            <span class="fi fi-{{ item.isoCodeCountry | lowercase }}"></span>
+            <p>{{ item.name | titlecase }}</p>
+          </div>
+        </ng-template>
+        <!-- Custom HTML in Options -->
+        <ng-template ng-option-tmp let-item="item">
+          <div class="custom-option">
+            <span class="fi fi-{{ item.isoCodeCountry | lowercase }}"></span>
+            <p>{{ item.name | titlecase }}</p>
+          </div>
+        </ng-template>
+      </ng-select>
+    </div>
+	@if(
+	profileForm.controls['fromCountry'].hasError('required')){
+	<ion-text class="error" color="danger">
+	  <p class="ion-margin-horizontal">Country of origin is required.</p>
+	</ion-text>
+
+	}
+
+    <ion-item>
+      <ion-textarea
+        [autoGrow]="true"
+        formControlName="descProfile"
+        label="Biography"
+        placeholder="Enter your description"
+        labelPlacement="stacked"
+      ></ion-textarea>
+    </ion-item>
+  </form>
+  }@else {
+  <form [formGroup]="interestForm" class="ion-margin-top">
+    <ion-list>
+      <ion-item class="select">
+        <ion-select
+          placeholder="Add new interest"
+          label="Interests"
+          labelPlacement="stacked"
+          formControlName="interest"
+          (ionChange)="onSelectionInterestChange()"
+          [compareWith]="compareWithInterest"
+        >
+          @for (interest of interests; track $index) {
+          <ion-select-option [value]="interest"
+            >{{interest.description}}</ion-select-option
+          >
+          }
+        </ion-select>
+        @if(userInterests.length>0){
+        <div class="outer">
+          @for(interest of userInterests;track $index){
+          <ion-chip>
+            <ion-label>{{interest.description}}</ion-label>
+            <ion-icon
+              name="close"
+              (click)="onClickDeleteInterest($index)"
+            ></ion-icon>
+          </ion-chip>
+          }
+        </div>
+        }
+      </ion-item>
+    </ion-list>
+  </form>
+  <form [formGroup]="userLanguageForm">
+    <div class="form-wrapper">
+      <ion-label class="font-[600]" position="stacked">
+        Spoken Languages
+      </ion-label>
+      <ng-select
+        (change)="onSelectionLanguageChange()"
+        [compareWith]="compareWithLanguages"
+        formControlName="language"
+        [items]="languages"
+        bindLabel="name"
+        placeholder="Select new language"
+        [searchable]="true"
+      >
+        <ng-template ng-label-tmp let-item="item">
+          <div class="custom-option">
+            <span class="fi fi-{{ item.isoCodeLanguage }}"></span>
+            <p>{{ item.name | titlecase }}</p>
+          </div>
+        </ng-template>
+        <!-- Custom HTML in Options -->
+        <ng-template ng-option-tmp let-item="item">
+          <div class="custom-option">
+            <span class="fi fi-{{ item.isoCodeLanguage }}"></span>
+            <p>{{ item.name | titlecase }}</p>
+          </div>
+        </ng-template>
+      </ng-select>
+    </div>
+	@if(profileForm.get('languages')?.hasError('required')){
+		<ion-text class="error" color="danger">
+		  <p class="ion-margin-horizontal">Language is required.</p>
+		</ion-text>
+		}
+    <ion-item>
+      <ion-select
+        label="Level"
+        labelPlacement="stacked"
+        formControlName="level"
+        (ionChange)="onSelectionLevelChange()"
+        [compareWith]="compareWithLevel"
+      >
+        @for (level of levels; track $index) {
+        <ion-select-option [value]="level"
+          >{{level.levelName}}</ion-select-option
+        >
+        }
+      </ion-select>
+    </ion-item>
+    @if(userLanguageForm.get('level')?.hasError('required')){
+    <ion-text class="error" color="danger">
+      <p class="ion-margin-horizontal">Level is required.</p>
+    </ion-text>
+    } @if(userLanguages.length>0){
+    <div class="outer ion-margin-top">
+      @for (userLanguage of userLanguages; track $index) {
+      <ion-chip>
+        <span class="fi fi-{{userLanguage.language.isoCodeLanguage}}"></span>
+        <ion-label
+          >{{userLanguage.language.name | titlecase}} -
+          {{userLanguage.level.levelName}}</ion-label
+        >
+        <ion-icon
+          (click)="onClickDeleteUserLanguage($index)"
+          name="close"
+        ></ion-icon>
+      </ion-chip>
+      }
+    </div>
+    }
+  </form>
+  } }
+</ion-content>
+@if(!isLoading){
+<ion-footer class="ion-no-border">
+  <div class="btn-container">
+    <ion-button
+      [disabled]="isUpdating"
+      (click)="onUpdateProfile()"
+      expand="full"
+      color="primary"
+    >
+      @if(isUpdating){
+      <ion-spinner name="circular"></ion-spinner>
+      }@else { Save }
+    </ion-button>
+  </div>
+</ion-footer>
+}

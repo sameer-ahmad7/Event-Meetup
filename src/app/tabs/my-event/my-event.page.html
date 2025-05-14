@@ -1,0 +1,291 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>My Events</ion-title> <ion-toggle
+            (ionChange)="onChangeHideRejectedCancelled($event)"
+            [checked]="hideRejectedCancelled"
+            color="danger" class="ion-padding-vertical">
+        <ion-label class="toggle-label">Hide <br/>Rejected / Cancelled</ion-label>
+    </ion-toggle>
+
+        <ion-buttons slot="end">
+            <ion-button (click)="gotoNotifications()" class="relative" fill="clear">
+                <ion-icon
+                        class="notification-icon"
+                        slot="icon-only"
+                        name="notifications"
+                ></ion-icon>
+                @if (notificationCount > 0) {
+                    <ion-badge class="notification">{{ notificationCount }}</ion-badge>
+                }
+            </ion-button>
+            <ion-button
+                    class="relative"
+                    color="primary"
+                    (click)="showFilter=!showFilter"
+            >
+                <ion-icon name="filter" slot="icon-only"></ion-icon>
+                @if (filtersNumber > 0) {
+                    <ion-badge class="filter-count">{{ filtersNumber }}</ion-badge>
+                }
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content forceOverscroll="true">
+    <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+        <ion-refresher-content
+                pullingIcon="chevron-down-circle-outline"
+                pullingText="Pull to refresh"
+                refreshingSpinner="circles"
+                refreshingText="Refreshing..."
+        >
+        </ion-refresher-content>
+    </ion-refresher>
+
+    <ion-modal
+            class="filter-modal"
+            initialBreakpoint="1"
+            [breakpoints]="[0, 1]"
+            (didDismiss)="onFilterDismissed($event)"
+            [isOpen]="showFilter"
+    >
+        <ng-template>
+            <app-my-event-filter [appliedFilters]="filters"></app-my-event-filter>
+        </ng-template>
+    </ion-modal>
+
+    @if (isLoading) {
+        <div class="flex flex-col h-full items-center justify-center">
+            <ion-spinner name="circular"></ion-spinner>
+        </div>
+    } @else {
+        @if (events.length === 0) {
+            <div class="flex flex-col h-full items-center justify-center">
+                <p>No events to show</p>
+            </div>
+        } @else {
+            <ion-accordion-group [multiple]="true" [value]="['upcoming', 'past']">
+                <ion-accordion value="upcoming">
+                    <ion-item slot="header" color="primary" class="ion-padding-horizontal">
+                        <ion-label>Upcoming Events</ion-label>
+                    </ion-item>
+                    <div slot="content" class="ion-padding-horizontal">
+                        @for (event of filteredIncomingEvents; track event.eventId) {
+                            <ion-card
+                                    [class.disabled]="['CANCELLED', 'NOT_COMPLETED', 'ENDED'].includes(event.status.id) || event.currentUserEventStatus === 'REJECTED'"
+                                    [routerLink]="['/events',event.eventId]"
+                                    class="ion-no-margin"
+                            >
+                                <ion-card-header>
+                                    <div class="flex items-center gap-[6px]">
+                                        <ion-chip [class]="getBadgeStatusObject(event.status.id).class">
+                                            {{ getBadgeStatusObject(event.status.description).text }}
+                                        </ion-chip>
+                                        <ion-chip
+                                                [class]="getBadgeStatusObject(event.currentUserEventStatus).class"
+                                        >
+                                            {{ getBadgeStatusObject(event.currentUserEventStatus).text }}
+                                        </ion-chip>
+                                    </div>
+                                </ion-card-header>
+
+                                <ion-card-content>
+                                    <div class="flex flex-col gap-[6px] mt-[10px]">
+                                        <h2>{{ event.name | titlecase }}</h2>
+                                        <div class="flex items-start gap-[4px]">
+                                            <ion-icon
+                                                    class="text-[24px]"
+                                                    name="location-outline"
+                                                    color="primary"
+                                            ></ion-icon>
+                                            <p>
+                                                <b> {{ event.businessClient.name + ', ' }} </b
+                                                >{{ getBusinessClientAddress(event) }}
+                                            </p>
+                                        </div>
+                                        <ion-chip class="w-[fit-content]">
+                                            <span class="fi fi-{{event.language.isoCodeLanguage}}"></span>
+                                            <ion-label>{{ event.language.name | titlecase }}</ion-label>
+                                        </ion-chip>
+
+                                        <div class="separator"></div>
+                                        <div
+                                                (click)="$event.stopImmediatePropagation();openParticipants(event)"
+                                                class="flex items-center justify-between">
+                                            @let participants = sharedService.getAcceptedParticipants(event);
+                                            @if (participants.length > 0) {
+                                                @let remainingParticipants = participants.length - 3;
+                                                <div
+                                                        class="participants">
+                                                    @for (participant of participants | slice:0:3; track $index; ) {
+                                                        @if (participant.userAvatar.imageProfileB64) {
+                                                            <div
+                                                                    class="avatar"
+                                                                    [routerLink]="participant.userAvatar.userId===user.userId?'/profile':'/profile/'+participant.userAvatar.userId"
+                                                            >
+                                                                <img
+                                                                        [src]="sharedService.getImageUrl(participant.userAvatar.imageProfileB64)"
+                                                                        alt=""
+                                                                />
+                                                            </div>
+                                                        } @else {
+                                                            <div
+                                                                    class="avatar"
+                                                                    [routerLink]="participant.userAvatar.userId===user.userId?'/profile':'/profile/'+participant.userAvatar.userId"
+                                                            >
+                                                                <ngx-avatars
+                                                                        [round]="true"
+                                                                        [size]="26"
+                                                                        [name]="participant.userAvatar.firstName+' '+participant.userAvatar.lastName"
+                                                                ></ngx-avatars>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    @if (remainingParticipants > 0) {
+                                                        <div class="moreText avatar">+{{ remainingParticipants }}</div>
+                                                    }
+                                                </div>
+                                            }
+                                            <div class="flex items-center gap-[4px]">
+                                                <p class="ion-no-margin text-(--text-light)">
+                                                    {{ event.startingDate | date: 'dd LLLL yyyy' }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ion-card-content>
+                            </ion-card>
+
+                        } @empty {
+                            <div class="flex flex-col h-full items-center justify-center">
+                                <p>No events to show</p>
+                            </div>
+
+                        }
+                    </div>
+                </ion-accordion>
+                <ion-accordion value="past">
+                    <ion-item slot="header" color="primary" class="ion-padding-horizontal">
+                        <ion-label>Past Events</ion-label>
+                    </ion-item>
+                    <div class="ion-padding-horizontal" slot="content">
+                        @for (event of filteredPastEvents; track event.eventId) {
+                            <!--  -->
+                            <ion-card
+                                    [class.disabled]="['CANCELLED', 'NOT_COMPLETED', 'ENDED'].includes(event.status.id) || event.currentUserEventStatus === 'REJECTED'"
+                                    [routerLink]="['/events',event.eventId]"
+                                    class="ion-no-margin"
+                            >
+                                <ion-card-header>
+                                    <div class="flex items-center gap-[6px]">
+                                        <ion-chip [class]="getBadgeStatusObject(event.status.id).class">
+                                            {{ getBadgeStatusObject(event.status.description).text }}
+                                        </ion-chip>
+                                        <ion-chip
+                                                [class]="getBadgeStatusObject(event.currentUserEventStatus).class"
+                                        >
+                                            {{ getBadgeStatusObject(event.currentUserEventStatus).text }}
+                                        </ion-chip>
+                                    </div>
+                                </ion-card-header>
+
+                                <ion-card-content>
+                                    <div class="flex flex-col gap-[6px] mt-[10px]">
+                                        <h2>{{ event.name | titlecase }}</h2>
+                                        <div class="flex items-start gap-[4px]">
+                                            <ion-icon
+                                                    class="text-[24px]"
+                                                    name="location-outline"
+                                                    color="primary"
+                                            ></ion-icon>
+                                            <p>
+                                                <b> {{ event.businessClient.name + ', ' }} </b
+                                                >{{ getBusinessClientAddress(event) }}
+                                            </p>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <ion-chip class="w-[fit-content]">
+                                                <span class="fi fi-{{event.language.isoCodeLanguage}}"></span>
+                                                <ion-label>{{ event.language.name | titlecase }}</ion-label>
+                                            </ion-chip>
+                                            @if (event.status.id === 'ENDED' && (event.currentUserEventStatus
+                                                === 'ACCEPTED' || event.owner.userId === user.userId)) {
+                                                @if (eventFeedback[event.eventId] && eventFeedback[event.eventId].userFeedback && eventFeedback[event.eventId].userFeedback.length > 0 && eventFeedback[event.eventId].allFeedback) {
+                                                    <ion-text
+                                                            color="primary"
+                                                    >
+                                                        <h4 class="font-[600]">Feedback Sent</h4>
+                                                    </ion-text>
+
+                                                } @else {
+                                                    <ion-text
+                                                            (click)="$event.stopImmediatePropagation();onClickLeaveFeedback(event)"
+                                                            color="primary"
+                                                    >
+                                                        <h4 class="font-[600]">Leave Feedback...</h4>
+                                                    </ion-text>
+
+                                                }
+                                            }
+                                        </div>
+
+                                        <div class="separator"></div>
+                                        <div
+                                                (click)="$event.stopImmediatePropagation();openParticipants(event)"
+                                                class="flex items-center justify-between">
+                                            @let participants = sharedService.getAcceptedParticipants(event);
+                                            @if (participants.length > 0) {
+                                                @let remainingParticipants = participants.length - 3;
+                                                <div class="participants">
+                                                    @for (participant of participants | slice:0:3; track $index; ) {
+                                                        @if (participant.userAvatar.imageProfileB64) {
+                                                            <div
+                                                                    class="avatar"
+                                                                    [routerLink]="participant.userAvatar.userId===user.userId?'/profile':'/profile/'+participant.userAvatar.userId"
+                                                            >
+                                                                <img
+                                                                        [src]="sharedService.getImageUrl(participant.userAvatar.imageProfileB64)"
+                                                                        alt=""
+                                                                />
+                                                            </div>
+                                                        } @else {
+                                                            <div
+                                                                    class="avatar"
+                                                                    [routerLink]="participant.userAvatar.userId===user.userId?'/profile':'/profile/'+participant.userAvatar.userId"
+                                                            >
+                                                                <ngx-avatars
+                                                                        [round]="true"
+                                                                        [size]="26"
+                                                                        [name]="participant.userAvatar.firstName+' '+participant.userAvatar.lastName"
+                                                                ></ngx-avatars>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    @if (remainingParticipants > 0) {
+                                                        <div class="moreText avatar">+{{ remainingParticipants }}</div>
+                                                    }
+                                                </div>
+                                            }
+                                            <div class="flex items-center gap-[4px]">
+                                                <p class="ion-no-margin text-(--text-light)">
+                                                    {{ event.startingDate | date: 'dd LLLL yyyy' }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ion-card-content>
+                            </ion-card>
+
+                        } @empty {
+                            <div class="flex flex-col h-full items-center justify-center">
+                                <p>No events to show</p>
+                            </div>
+
+                        }
+                    </div>
+                </ion-accordion>
+            </ion-accordion-group>
+        }
+    }
+</ion-content>

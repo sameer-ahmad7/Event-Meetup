@@ -1,0 +1,198 @@
+<div class="post ion-margin-top ion-padding-horizontal">
+	<div
+    class="gps"
+    (click)="onCenterMyLocation()"
+  >
+    <ion-icon name="locate-outline"></ion-icon>
+  </div>
+
+  @for (event of events(); track event.eventId) {
+  <ion-card class="ion-no-margin">
+    @let fullName=event.owner.firstName+' '+event.owner.lastName;
+    <ion-card-header>
+      <div class="flex items-center">
+        <div class="flex items-center gap-[10px]">
+          @if(!event.owner.imageProfileB64){
+          <ngx-avatars
+            [routerLink]="event.owner.userId===userId?'/profile':'/profile/'+event.owner.userId"
+            [size]="43"
+            [round]="true"
+            [name]="fullName"
+          ></ngx-avatars>
+          }@else {
+          <div
+            class="profile_img"
+            [routerLink]="event.owner.userId===userId?'/profile':'/profile/'+event.owner.userId"
+          >
+            <img
+              [src]="sharedService.getImageUrl(event.owner.imageProfileB64)"
+              alt=""
+            />
+          </div>
+          }
+          <div class="flex flex-col gap-[2px]">
+            <h3
+              [routerLink]="event.owner.userId===userId?'/profile':'/profile/'+event.owner.userId"
+              class="text-[black]"
+            >
+              {{fullName}}
+            </h3>
+            <p class="ion-no-margin text-(--text-light)">
+              {{event.startingDate | date: 'dd LLLL yyyy'}} |
+              {{event.startingDate | date: 'shortTime'}}
+            </p>
+          </div>
+        </div>
+      </div>
+    </ion-card-header>
+
+    <ion-card-content [routerLink]="['/events',event.eventId]">
+      <div class="relative h-[190px]">
+        @if(event.businessClient.imageProfileB64){
+        <img
+          class="w-full h-full object-cover"
+          [src]="sharedService.getImageUrl(event.businessClient.imageProfileB64)"
+        />
+
+        }@else {
+        <img
+          class="w-full h-full object-cover"
+          src="assets/images/mock/restaurant-mock.png"
+        />
+
+        }
+
+        <div
+          class="flex items-center gap-[6px] absolute left-[0] bottom-[0] z-[10] ml-[6px]"
+        >
+          <ion-chip>
+            <span class="fi fi-{{event.language.isoCodeLanguage}}"></span>
+            <ion-label>{{event.language.name | titlecase}}</ion-label>
+          </ion-chip>
+          @if(event.isOffered && event.avgCostMax){
+          <ion-chip>
+            <ion-icon name="wallet"></ion-icon>
+            <ion-label> {{event.avgCostMax + 'CHF Offered'}} </ion-label>
+          </ion-chip>
+          }
+        </div>
+      </div>
+      <div class="flex flex-col gap-[6px] mt-[10px]">
+        <h2>{{event.name | titlecase}}</h2>
+        <div
+          class="flex items-start gap-[4px]"
+        >
+          <ion-icon
+            class="text-[24px]"
+            name="location-outline"
+            color="primary"
+          ></ion-icon>
+          <p>
+            <b> {{event.businessClient.name + ', '}} </b
+            >{{getBusinessClientAddress(event)}}
+          </p>
+        </div>
+        <div class="separator"></div>
+        <div 			(click)="$event.stopImmediatePropagation();openParticipants(event)"
+		class="flex items-center justify-between">
+          @let participants=getEventParticipants(event.participants);
+          @if(participants.length>0){ @let
+          remainingParticipants=participants.length-3;
+          <div class="participants">
+            @for(participant of participants | slice:0:3;track $index;){
+            @if(participant.userAvatar.imageProfileB64){
+            <div
+              class="avatar"
+            >
+              <img
+                [src]="sharedService.getImageUrl(participant.userAvatar.imageProfileB64)"
+                alt=""
+              />
+            </div>
+            }@else {
+            <div
+              class="avatar"
+            >
+              <ngx-avatars
+                bgColor="#F1C40E"
+                [round]="true"
+                [size]="26"
+                [name]="participant.userAvatar.firstName+' '+participant.userAvatar.lastName"
+              ></ngx-avatars>
+            </div>
+
+            } } @if(remainingParticipants>0){
+            <div class="moreText avatar">+{{remainingParticipants}}</div>
+            }
+            <div class="avatar max">
+              <p>
+                &nbsp; / &nbsp;<b
+                  >{{event.participantSizeGroup.maxParticipants}}
+                </b>
+              </p>
+            </div>
+          </div>
+
+          }
+          <div class="flex items-center gap-[4px]">
+            @if(event.gender){
+            <ion-icon name="lock-closed"></ion-icon>
+            <p>{{event.gender.description | titlecase}}</p>
+            }
+          </div>
+          <div class="flex items-center gap-[4px]">
+            <h3>Age:</h3>
+            <p>
+              {{event.minAge + '-'}}
+			 @if(event.maxAge && event.maxAge<65){
+			  {{event.maxAge}}
+			}@else {
+				@if(event.maxAge===65){
+					{{event.maxAge + '+'}}
+				}@else if(!event.maxAge){
+					{{NO_MAX_LIMIT_AGE+'+'}}
+				}
+			}
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="ion-margin-top separator"></div>
+							  <div class="additionalInfo">
+								<ion-list>
+								  <ion-item>
+									<ion-label>
+									  <h3>Gender</h3>
+									  <p>Open to Everyone</p>
+									</ion-label>
+								  </ion-item>
+								  <ion-item>
+									<ion-label>
+									  <h3>Age</h3>
+									  <p>18-65+</p>
+									</ion-label>
+								  </ion-item>
+								  <ion-item>
+									<ion-label>
+									  <h3>Expenses</h3>
+									  <ion-checkbox
+										justify="start"
+										mode="md"
+										labelPlacement="end"
+										disabled
+										>Not offered by the owner</ion-checkbox
+									  >
+									</ion-label>
+								  </ion-item>
+								</ion-list>
+							  </div> -->
+    </ion-card-content>
+  </ion-card>
+
+  }@empty {
+  <div class="flex flex-col h-full items-center justify-center">
+    <p>No events to show</p>
+  </div>
+
+  }
+</div>

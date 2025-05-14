@@ -1,0 +1,384 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Create Event</ion-title>
+  </ion-toolbar>
+  <ion-grid>
+    <ion-row>
+      @for (step of steps; track $index;let i=$index) {
+      <ion-col size="4" class="ion-justify-content-start">
+        <div
+          (click)="gotoStep(i)"
+          class="step-wrapper"
+          [ngClass]="{ 'completed': currentStep() === i ,'items-center':i===1,'items-start':i===0,'items-end':i===steps.length-1}"
+        >
+          <!-- Step Circle -->
+          <div
+            class="step-circle"
+            [ngClass]="{ 'active': currentStep() === i }"
+          >
+            {{ i + 1 }}
+          </div>
+          <div
+            class="step-label"
+            [ngClass]="{ 'active-label': currentStep() === i }"
+          >
+            {{ step }}
+          </div>
+        </div>
+      </ion-col>
+      }
+    </ion-row>
+  </ion-grid>
+</ion-header>
+<ion-content class="ion-padding" fullscreen>
+  <!-- <ion-loading [isOpen]="true" [backdropDismiss]="false"></ion-loading> -->
+
+  @if(isDataLoading){
+  <div class="h-full flex flex-col items-center justify-center">
+    <ion-spinner name="circular"></ion-spinner>
+  </div>
+  }@else {
+
+  <ion-loading
+    [isOpen]="isCreatingEvent"
+    message="Creating Event..."
+    [backdropDismiss]="false"
+  ></ion-loading>
+
+  <ion-modal
+    (didDismiss)="onCreateEventSuccessDismissed($event)"
+    [isOpen]="showCreateEventSuccess"
+    class="event-success-modal"
+  >
+    <ng-template>
+      <app-create-event-success></app-create-event-success>
+    </ng-template>
+  </ion-modal>
+
+  <swiper-container
+    (swiperslidechange)="onSlideChanged($event)"
+    slides-per-view="1"
+    allow-touch-move="false"
+    #slides
+  >
+    <!--  Find pool section start -->
+    <swiper-slide>
+      <form [formGroup]="generalForm" class="h-full">
+        <ion-list class="h-full overflow-auto">
+          <ion-item id="date">
+            <ion-input
+              class="date-input"
+              [value]="formattedStartDate"
+              label="Start Date"
+              placeholder="Pick a date and time"
+              label-placement="stacked"
+              errorText="Invalid text"
+            ></ion-input>
+            <ion-icon
+              name="calendar-clear-outline"
+              aria-hidden="true"
+              slot="end"
+            ></ion-icon>
+            <ion-popover trigger="date" size="cover" mode="md">
+              <ng-template>
+                <ion-datetime
+                  formControlName="startingDate"
+                  (ionChange)="onStartDateChanged($event)"
+                  [showDefaultButtons]="true"
+                  [min]="minDate"
+                  presentation="date-time"
+                ></ion-datetime>
+              </ng-template>
+            </ion-popover>
+          </ion-item>
+          @if(generalForm.controls.startingDate.dirty &&
+          generalForm.controls.startingDate.hasError('required')){
+          <ion-text class="error" color="danger">
+            <p class="ion-margin-horizontal">Starting date is required.</p>
+          </ion-text>
+
+          }
+
+          <ion-item>
+            <ion-select
+              label="Event Type"
+              label-placement="stacked"
+              placeholder="Select Event Type"
+              formControlName="eventType"
+            >
+              @for (eventType of eventTypes; track $index) {
+              <ion-select-option [value]="eventType.id"
+                >{{eventType.description}}</ion-select-option
+              >
+
+              }
+            </ion-select>
+          </ion-item>
+          @if(generalForm.controls.eventType.dirty &&
+          generalForm.controls.eventType.hasError('required')){
+          <ion-text class="error" color="danger">
+            <p class="ion-margin-horizontal">Event type is required.</p>
+          </ion-text>
+
+          }
+
+          <ion-item lines="none">
+            <ion-textarea
+              [autoGrow]="true"
+              formControlName="description"
+              label="Description"
+              placeholder="Enter a description for event"
+              labelPlacement="stacked"
+              maxlength="500"
+              [counter]="true"
+            ></ion-textarea>
+          </ion-item>
+          @if(generalForm.controls.description.dirty &&
+          generalForm.controls.description.hasError('required')){
+          <ion-text class="error" color="danger">
+            <p class="ion-margin-horizontal">Description is required.</p>
+          </ion-text>
+
+          }
+          <ion-item>
+            <div class="flex flex-col">
+              <ion-checkbox
+                formControlName="isOffered"
+                class="text-[14px] font-[600]"
+                (ionChange)="onOfferChanged($event)"
+                >The event is offered by you?</ion-checkbox
+              >
+              <p class="text-(--text-light) mt-[0]">
+                I take responsibility for offering the drink during the event
+                according with a predefined maximum threshold expense. In the
+                next step you will choose the max number of participants
+              </p>
+            </div>
+          </ion-item>
+
+          @if(generalForm.controls.isOffered.value){
+          <div class="flex flex-col">
+            <ion-input
+              class="ion-margin-top"
+              mode="md"
+              fill="outline"
+              type="number"
+              formControlName="avgCostMax"
+              label="Max Price (CHF)"
+              labelPlacement="stacked"
+              helperText="Max price you are disposal to offer for each participant (optional)"
+            ></ion-input>
+          </div>
+          }
+        </ion-list>
+        <div class="flex flex-col gap-[10px]">
+          <div class="flex justify-between items-center"></div>
+        </div>
+      </form>
+    </swiper-slide>
+
+    <swiper-slide>
+      <form [formGroup]="participantsForm">
+        <ion-list>
+          <div class="form-wrapper">
+            <ion-label class="font-[600]" position="stacked">
+              Event Language
+            </ion-label>
+            <ng-select
+              formControlName="language"
+              [items]="languages"
+              bindLabel="name"
+              bindValue="isoCodeLanguage"
+              placeholder="Select event language"
+              [searchable]="true"
+            >
+              <ng-template ng-label-tmp let-item="item">
+                <div class="custom-option">
+                  <span class="fi fi-{{ item.isoCodeLanguage }}"></span>
+                  <p>{{ item.name | titlecase }}</p>
+                </div>
+              </ng-template>
+              <!-- Custom HTML in Options -->
+              <ng-template ng-option-tmp let-item="item">
+                <div class="custom-option">
+                  <span class="fi fi-{{ item.isoCodeLanguage }}"></span>
+                  <p>{{ item.name | titlecase }}</p>
+                </div>
+              </ng-template>
+            </ng-select>
+          </div>
+          @if(participantsForm.controls.language.dirty &&
+          participantsForm.controls.language.hasError('required')){
+          <ion-text class="error" color="danger">
+            <p class="ion-margin-horizontal">Language is required.</p>
+          </ion-text>
+          }
+
+          <ion-item>
+            <ion-select
+              (ionChange)="selectParticipantSize($event)"
+              label="Participants Size"
+              label-placement="stacked"
+              placeholder="Select Participants Size"
+              formControlName="participantSizeGroup"
+            >
+              @for (participant of participantSizes; track $index) {
+              <ion-select-option [value]="participant.id"
+                >{{participant.description}}</ion-select-option
+              >
+
+              }
+            </ion-select>
+          </ion-item>
+          @if(participantsForm.controls.participantSizeGroup.dirty &&
+          participantsForm.controls.participantSizeGroup.hasError('required')){
+          <ion-text class="error" color="danger">
+            <p class="ion-margin-horizontal">Particpants Size is required.</p>
+          </ion-text>
+
+          }
+
+          <ion-item>
+            <ion-select
+              label="Gender"
+              label-placement="stacked"
+              placeholder="Gender of Participants"
+              formControlName="gender"
+            >
+              @for (gender of filteredGenders; track $index) {
+              <ion-select-option [value]="gender.id"
+                >{{gender.description}}</ion-select-option
+              >
+
+              }
+              <ion-select-option [value]="">Open to everyone</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          @if(participantsForm.controls.gender.dirty &&
+          participantsForm.controls.gender.hasError('required')){
+          <ion-text class="error" color="danger">
+            <p class="ion-margin-horizontal">Gender is required.</p>
+          </ion-text>
+
+          }
+
+          <div class="slider">
+            <p>Range Age Participants</p>
+            <div class="custom-slider">
+              <ngx-slider
+                [(value)]="participantsForm.controls.minAge.value!"
+                [(highValue)]="participantsForm.controls.maxAge.value!"
+                [options]="rangeAgeOpt"
+              ></ngx-slider>
+            </div>
+          </div>
+        </ion-list>
+      </form>
+    </swiper-slide>
+
+    <swiper-slide>
+      @if(!isMyLocationLoading){
+      <div class="search-container">
+        <div class="search_box">
+          <ion-button fill="clear">
+            <ion-icon
+              color="primary"
+              slot="icon-only"
+              name="location"
+            ></ion-icon>
+          </ion-button>
+          <ion-input
+            type="text"
+            placeholder="Insert address or location"
+            [value]="searchQuery"
+            (ionInput)="onChangeSearch($event)"
+            debounce="300"
+          ></ion-input>
+          @if(searchQuery && searchQuery.trim() && searchQuery.toLowerCase() &&
+          !isAddressLoading){
+          <ion-button (click)="onClearSearch()" fill="clear">
+            <ion-icon
+              name="close"
+              slot="icon-only"
+              color="dark"
+              class="clear-icon"
+            ></ion-icon>
+          </ion-button>
+
+          }
+        </div>
+        @if(addressLocations.length>0 && searchQuery.trim() && isActiveSearch ){
+        <div class="absolute top-[50px] left-[0] right-[0]">
+          <ion-list class="rounded-[10px] max-h-[350px] overflow-auto">
+            @for (location of addressLocations; track $index) {
+            <ion-item (click)="searchByPosition(location)">
+              <div class="flex gap-[2px]">
+                {{ location.formattedAddress }} {{location.country}}
+              </div>
+            </ion-item>
+            }
+          </ion-list>
+        </div>
+
+        }
+      </div>
+
+      } @if(mapMarkers.length>0){
+      <app-create-event-map
+        [businesses]="businessClients"
+        [userLocation]="userLocation"
+        [mapMarkers]="mapMarkers"
+        [isRefresh]="isRefresh"
+        (onBusinessSelected)="onSelectBusinessClient($event)"
+        (onRefreshLocation)="onResetMyLocation()"
+      ></app-create-event-map>
+
+      }
+    </swiper-slide>
+  </swiper-container>
+  }
+</ion-content>
+@if(!isDataLoading){
+<ion-footer class="ion-no-border">
+  <div class="btn-container ion-margin-top">
+    @if(currentStep()===0){
+    <ion-button
+      [disabled]="generalForm.invalid"
+      (click)="next()"
+      expand="full"
+      color="primary"
+    >
+      Next
+    </ion-button>
+    }@else if(currentStep()===1){
+    <ion-button (click)="previous()" expand="full" color="secondary">
+      Previous
+    </ion-button>
+    <ion-button
+      [disabled]="participantsForm.invalid"
+      (click)="next()"
+      expand="full"
+      color="primary"
+    >
+      Next
+    </ion-button>
+
+    }@else {
+    <ion-button (click)="previous()" expand="full" color="secondary">
+      Previous
+    </ion-button>
+
+    <ion-button
+      (click)="createEvent()"
+      [disabled]="!selectedBusiness"
+      expand="full"
+      color="primary"
+    >
+      Create Event
+    </ion-button>
+    }
+  </div>
+</ion-footer>
+
+}

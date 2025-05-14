@@ -1,0 +1,223 @@
+<ion-header>
+  <ion-toolbar>
+    @if(isLoading || !chatInitialized){
+    <ion-progress-bar type="indeterminate"></ion-progress-bar>
+    }@else if(!isLoading) {
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/tabs/chats"
+        text=""
+        icon="chevron-back"
+      ></ion-back-button>
+    </ion-buttons>
+    <div class="flex items-start relative gap-[6px]">
+      @if(event.businessClient.imageProfileB64){
+      <div class="profile_img">
+        <img
+          [src]="sharedService.getImageUrl(event.businessClient.imageProfileB64)"
+        />
+      </div>
+
+      }@else{
+      <div class="profile_img">
+        <img class="photo" src="assets/images/mock/restaurant-mock.png" />
+      </div>
+      }
+      <div class="flex flex-col gap-[6px] w-full overflow-hidden">
+        <h4
+          class="text-[black] w-full text-ellipsis overflow-hidden whitespace-nowrap"
+        >
+          {{event.name}}
+        </h4>
+
+        <div class="flex items-center gap-[10px]">
+          <ion-chip>
+            <span
+              class="fi fi-{{event.language.isoCodeLanguage}} me-2 mt-3"
+            ></span
+            ><span class="language-title"
+              >{{event.language.name | titlecase}}</span
+            >
+          </ion-chip>
+          @if(acceptedParticipants.length>0){
+          <p id="participant-modal" class="ion-no-margin font-[600]">
+            {{acceptedParticipants.length}} participants
+          </p>
+          }
+        </div>
+      </div>
+    </div>
+
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding chat-content">
+  @if(!isLoading && chatInitialized){
+  <ion-modal #modal trigger="participant-modal">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-button (click)="modal.dismiss()" fill="clear">
+              <ion-icon color="dark" name="chevron-back"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+          <ion-title>Participants</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <div class="flex flex-col gap-[10px] participant-list">
+          @for (participant of sharedService.getAcceptedParticipants(event);
+          track $index) { @let fullName=participant.userAvatar.firstName+'
+          '+participant.userAvatar.lastName;
+          <div class="flex items-center gap-[10px] participant-container">
+            @if(!participant.userAvatar.imageProfileB64){
+            <div class="relative">
+              <ngx-avatars
+                [routerLink]="participant.userAvatar.userId===selfUser.userId?'/profile':'/profile/'+participant.userAvatar.userId"
+                [size]="43"
+                [round]="true"
+                [name]="fullName"
+              ></ngx-avatars>
+              <div class="active-status">
+                <ion-icon
+                  [class.active]="isOnline(participant.userAvatar)"
+                  name="ellipse"
+                ></ion-icon>
+              </div>
+            </div>
+            }@else {
+            <div
+              class="profile_img relative"
+              [routerLink]="participant.userAvatar.userId===selfUser.userId?'/profile':'/profile/'+participant.userAvatar.userId"
+            >
+              <img
+                [src]="sharedService.getImageUrl(participant.userAvatar.imageProfileB64)"
+                alt=""
+              />
+              <div class="active-status">
+                <ion-icon
+                  [class.active]="isOnline(participant.userAvatar)"
+                  name="ellipse"
+                ></ion-icon>
+              </div>
+            </div>
+            }
+
+            <div class="flex flex-col gap-[2px] w-full overflow-hidden">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between w-full">
+					<div class="flex gap-[6px]">
+
+						<h3
+						[routerLink]="participant.userAvatar.userId===selfUser.userId?'/profile':'/profile/'+participant.userAvatar.userId"
+						class="text-[black] w-full text-ellipsis overflow-hidden whitespace-nowrap"
+					  >
+						{{fullName}}
+					  </h3>
+					  @if(participant.userAvatar.userId===event.owner.userId){
+						<ion-badge
+						  style="border-radius: 0"
+						  class="w-[70px] grow-[1] shrink-[0] flex items-center justify-center"
+						  >Owner</ion-badge
+						>
+						}
+
+					</div>
+					@if(participant.userAvatar.userId!==selfUser.userId && !isReasonsLoading){
+						<ion-button class="shrink-[0] menu-btn" (click)="onOpenActionSheet(participant)" fill="clear" >
+							<ion-icon slot="icon-only" name="ellipsis-horizontal"></ion-icon>
+						</ion-button>	
+					}		
+                </div>
+              </div>
+              <p
+			  [innerHTML]="chatService.getUserLastMessage(participant.userAvatar.userId)"
+                class="ion-no-margin w-full text-ellipsis overflow-hidden whitespace-nowrap text-(--text-light)"
+              >
+              </p>
+            </div>
+          </div>
+
+          }
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <div class="chat-inner">
+    <div class="chat-messages">
+      @if(messages.length===0){
+      <div class="flex-grow"></div>
+      } @for(message of messages;track $index;let i=$index){
+      <div
+        [class.send]="message.from.userId===selfUser.userId"
+        class="chat-box"
+      >
+        <div class="chat">
+          <div class="member">
+            @if(message.from.userId!==selfUser.userId){
+            @if(message.from.imageProfileB64){
+            <div class="profile_img">
+              <img
+                [routerLink]="message.from.userId===selfUser.userId?'/profile':'/profile/'+message.from.userId"
+                class="photo"
+                [src]="sharedService.getImageUrl(message.from.imageProfileB64)"
+              />
+            </div>
+            }@else {
+            <ngx-avatars
+              [routerLink]="message.from.userId===selfUser.userId?'/profile':'/profile/'+message.from.userId"
+              [name]="message.from.firstName +' '+message.from.lastName"
+              [size]="30"
+              [round]="true"
+            ></ngx-avatars>
+            } }
+            <h3
+              [routerLink]="message.from.userId===selfUser.userId?'/profile':'/profile/'+message.from.userId"
+              [class.send]="message.from.userId===selfUser.userId"
+            >
+              @if(message.from.userId===selfUser.userId){ You }@else{
+              {{message.from.firstName}} }
+            </h3>
+          </div>
+
+          <div class="text">
+            <h4 [innerHTML]="message.text"></h4>
+            <p>{{message.dateTime | timeAgo}}</p>
+          </div>
+        </div>
+      </div>
+
+      }
+    </div>
+  </div>
+  }
+</ion-content>
+@if(!isLoading && chatInitialized){
+<ion-footer>
+  <div
+    class="msg-container"
+    [ngStyle]="isKeyboardVisible ? { 'margin-bottom': paddingBottom + 'px' } : {}"
+  >
+    <div class="flex items-center justify-between textbox">
+      <ion-textarea
+        (ionFocus)="onFocusTextArea()"
+        class="textarea"
+        placeholder="Write your message..."
+        [(ngModel)]="messageToBeSend"
+        autoGrow
+      ></ion-textarea>
+      <ion-button
+        (click)="sendGroupMessage()"
+        [disabled]="isSendingMessage || !messageToBeSend?.trim()"
+        fill="clear"
+        slot="end"
+      >
+        <ion-icon slot="icon-only" name="send"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+</ion-footer>
+}

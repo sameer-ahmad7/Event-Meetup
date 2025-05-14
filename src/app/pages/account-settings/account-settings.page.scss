@@ -1,0 +1,31 @@
+ion-item-divider {
+  font-size: 20px;
+  color: var(--ion-color-primary);
+  font-weight: 600;
+  margin-bottom: 16px;
+  border-width: 4px;
+}
+
+ion-list {
+  ion-item {
+    h3 {
+      font-size: 16px;
+    }
+    p {
+      margin: 0;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+    ion-toggle {
+      color: var(--text-light);
+      &::part(label) {
+        text-overflow: unset;
+        margin-top: 4px;
+        white-space: normal;
+      }
+    }
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-line-color);
+  }
+}

@@ -1,0 +1,19 @@
+ion-label {
+  font-size: 12px !important;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+}
+
+.btn-container {
+//   padding-bottom: var(--safe-area-inset-bottom);
+}
+
+.ng-select {
+  width: 100%;
+  min-height: 44px; // Matches ion-input height
+  display: flex;
+  align-items: center;
+}

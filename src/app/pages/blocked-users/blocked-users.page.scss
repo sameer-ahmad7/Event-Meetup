@@ -1,0 +1,8 @@
+.participant{
+	&:not(:first-child) {
+		margin-top: 10px;
+	  }
+	  border-bottom: 1px solid var(--border-line-color);
+	  padding-bottom: 10px;
+  }
+ 

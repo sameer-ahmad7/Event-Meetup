@@ -1,0 +1,163 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/tabs/home"
+        text=""
+        icon="chevron-back"
+      ></ion-back-button
+    ></ion-buttons>
+    <ion-title> Notifications </ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding">
+  @if(isLoading){
+  <div class="h-full flex flex-col justify-center items-center">
+    <ion-spinner name="circular"></ion-spinner>
+  </div>
+  }@else { @if(notifications.length>0){
+  <ion-list class="notifications">
+    @for (notification of notifications; track $index) {
+    <ion-item [class.active]="!notification.isRead" button detail="false">
+      <ion-label>
+        <div class="content">
+          <div class="user-info">
+            <div class="profile_img">
+              @if(RESTAURANT_STATUS.includes(notification.notificationType)){
+              @if(notification.eventAvatar.businessClient.imageProfileB64){
+              <img
+                routerLink="/events/{{notification.eventAvatar.eventId}}"
+                [src]="sharedService.getImageUrl(notification.eventAvatar.businessClient.imageProfileB64)"
+                alt=""
+              />
+              }@else{
+              <img
+                routerLink="/events/{{notification.eventAvatar.eventId}}"
+                src="assets/images/notifications/notification-event.png"
+              />
+              } }@else { @if(notification.userFrom.imageProfileB64){
+              <img
+                routerLink="/profile/{{notification.userFrom.userId}}"
+                [src]="sharedService.getImageUrl(notification.userFrom.imageProfileB64)"
+                alt=""
+              />
+              }@else {
+
+              <ngx-avatars
+                routerLink="/profile/{{notification.userFrom.userId}}"
+                size="43"
+                [name]="notification.userFrom.firstName+' '+notification.userFrom.lastName"
+                [round]="true"
+              ></ngx-avatars>
+              } }
+            </div>
+            <div class="title">
+              <div class="time-info">
+                @if(!RESTAURANT_STATUS.includes(notification.notificationType)){
+                <h2 routerLink="/profile/{{notification.userFrom.userId}}">
+                  {{notification.userFrom.firstName + " " +
+                  notification.userFrom.lastName + " "}}
+                </h2>
+
+                }@else if(notification.notificationType === 'EVENT_REMINDER') {
+                <h2 routerLink="/events/{{notification.eventAvatar.eventId}}">
+                  {{notification.eventAvatar.name}}
+                </h2>
+                }
+                @if(notification.notificationType!=='BUSINESS_EVENT_ACCEPTED' && notification.notificationType!=='FEEDBACK_REMINDER' ){
+                <p>{{notification.createdAt | timeAgo}}</p>
+
+                }
+              </div>
+              <div class="flex flex-col">
+                @if(notification.notificationType!=='BUSINESS_EVENT_ACCEPTED' && notification.notificationType!=='FEEDBACK_REMINDER'){
+                <p routerLink="/events/{{notification.eventAvatar.eventId}}">
+                  {{notification.message}}
+                </p>
+                }
+                @if(notification.notificationType==='BUSINESS_EVENT_ACCEPTED' || notification.notificationType==='FEEDBACK_REMINDER'){
+                <div class="flex items-start justify-between">
+                  <p
+                    style="flex-shrink: 1"
+                    routerLink="/events/{{notification.eventAvatar.eventId}}"
+                  >
+                    {{notification.message}} &nbsp;
+                  </p>
+
+                  <p class="shrink-0">{{notification.createdAt | timeAgo}}</p>
+                </div>
+
+                } @if(notification.notificationType === 'EVENT_REQUEST' ||
+                notification.notificationType === 'EVENT_ACCEPTED' ||
+                notification.notificationType === 'EVENT_DECLINED' ||
+                notification.notificationType === 'EVENT_REQUEST_EXPIRED' ||
+                notification.notificationType === 'EVENT_REQUEST_ACCEPTED' ||
+                notification.notificationType === 'EVENT_REQUEST_DECLINED' ||
+                notification.notificationType === 'EVENT_REQUEST_CANCELLED' ||
+                notification.notificationType === 'EVENT_DELETED' ||
+                notification.notificationType === 'USER_FEEDBACK' ||
+                notification.notificationType === 'FEEDBACK_REMINDER' ||
+                notification.notificationType === 'UNSUBSCRIBE_EVENT'){
+                <p
+                  routerLink="/events/{{notification.eventAvatar.eventId}}"
+                  style="color: black"
+                >
+                  {{notification.eventAvatar.name}}
+                </p>
+                }
+              </div>
+              @if(notification.notificationType === 'EVENT_REQUEST' ||
+              notification.notificationType === 'EVENT_REQUEST_WAITING_LIST'){
+              <div class="btns">
+                <ion-button
+                  (click)="onClickApproveRejectButton(notification, true)"
+                  color="primary"
+                  >Accept</ion-button
+                >
+                <ion-button
+                  (click)="onClickApproveRejectButton(notification, false)"
+                  color="secondary"
+                  >Decline</ion-button
+                >
+              </div>
+              }@if(notification.notificationType === 'EVENT_REQUEST_ACCEPTED'){
+              <div class="btns">
+                <ion-button color="primary">
+                  Accepted
+                  <ion-icon
+                    slot="end"
+                    name="checkmark-circle-outline"
+                    class="text-[white]"
+                  ></ion-icon>
+                </ion-button>
+              </div>
+              }@if(notification.notificationType === 'EVENT_REQUEST_DECLINED'){
+              <div class="btns">
+                <ion-button color="danger"> Rejected </ion-button>
+              </div>
+              }@if(notification.notificationType==='EVENT_REQUEST_CANCELLED'){
+
+              <div class="btns">
+                <ion-button color="dark"> Cancelled </ion-button>
+              </div>
+              } @if(notification.notificationType==='EVENT_REQUEST_EXPIRED'){
+
+              <div class="btns">
+                <ion-button color="dark"> Expired </ion-button>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+      </ion-label>
+    </ion-item>
+
+    }
+  </ion-list>
+
+  }@else {
+  <div class="h-full flex flex-col justify-center items-center">
+    <p>No Notifications to show</p>
+  </div>
+  } }
+</ion-content>

@@ -1,0 +1,88 @@
+<div class="h-full relative">
+  <div id="map" #mapContainer></div>
+  <div class="gps active-posts" (click)="onCenterMyLocation()">
+    <ion-icon name="locate-outline"></ion-icon>
+  </div>
+
+  @if(businesses().length>0){
+  <div class="absolute bottom-[6px] w-full ion-margin-top z-[2000]">
+    <swiper-container
+      #slides
+      (swiperslidechange)="onSlideChanged($event)"
+      slides-per-view="auto"
+      space-between="10"
+      class="custom-swiper"
+    >
+      @for (business of businesses(); track $index) {
+      <swiper-slide class="custom-slide">
+        <ion-card
+          [class.active]="selectedBusiness && business.id===selectedBusiness.id"
+          (click)="onSelectBusiness(business)"
+        >
+          <ion-card-header>
+            <div class="flex w-full items-stretch overflow-hidden">
+              <div class="w-[100px] shrink-[0]">
+                @if(business.imageProfileB64){
+                <img
+                  class="w-full h-full object-cover"
+                  [src]="sharedService.getImageUrl(business.imageProfileB64)"
+                />
+
+                }@else {
+                <img
+                  class="w-full h-full object-cover"
+                  src="assets/images/mock/restaurant-mock.png"
+                />
+
+                }
+              </div>
+              <div
+                class="flex flex-col px-[6px] grow-[1] min-w-[0] overflow-hidden"
+              >
+                <div class="flex items-center gap-[4px]">
+                  <h4 class="text-[16px] m-[0] text-[black]">
+                    {{business.name | titlecase}}
+                  </h4>
+                  <ion-button
+                    (click)="showWorkingHours(business)"
+                    fill="clear"
+                    [id]="'working-hours-trigger'+business.id"
+                  >
+                    <ion-icon name="help-circle" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </div>
+
+                <div class="chip-container">
+                  <ion-chip [class.close]="!business.open">
+                    <ion-label>
+                      @if(business.open){ Open }@else { N/A }
+                    </ion-label>
+                  </ion-chip>
+                </div>
+                <div class="flex gap-[2px] mb-[4px]">
+                  @if(business.rate){
+                  <div class="ranking">
+                    @for(item of auxRanking;track $index;let i=$index){
+                    @if(item<=business.rate){
+                    <ion-icon name="star"></ion-icon>
+                    } @if(item > business.rate && auxRanking[i-1] <
+                    business.rate){
+                    <ion-icon name="star-half-outline"></ion-icon>
+                    }@if(item > business.rate && auxRanking[i-1] >=
+                    business.rate){
+                    <ion-icon name="star"></ion-icon>
+                    } }
+                  </div>
+                  } @else { No score available }
+                </div>
+              </div>
+            </div>
+          </ion-card-header>
+        </ion-card>
+      </swiper-slide>
+
+      }
+    </swiper-container>
+  </div>
+  }
+</div>

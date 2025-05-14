@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      <div class="title_inner">
+        <div class="header">
+          <div class="d-flex">
+            @let fullName=user().firstName+' '+user().lastName;
+            @if(user().imageProfileB64){
+            <div class="profile_img">
+              <img
+                [src]="sharedService.getImageUrl(user().imageProfileB64)"
+                alt=""
+              />
+            </div>
+            }@else {
+            <ngx-avatars
+              [size]="60"
+              [name]="fullName"
+              [round]="true"
+            ></ngx-avatars>
+            }
+            <h3>{{fullName}}</h3>
+
+            <!-- <div class="end">
+              <ion-icon name="close"></ion-icon>
+            </div> -->
+          </div>
+          <div class="separator ion-margin-top"></div>
+        </div>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding-horizontal">
+  <ion-list>
+    <ion-item (click)="gotoProfile()" button detail="false" lines="none">
+      <ion-label>Profile</ion-label>
+    </ion-item>
+    <ion-item (click)="gotoSettings()" button detail="false" lines="none">
+      <ion-label>Settings</ion-label>
+    </ion-item>
+    <ion-item button (click)="gotoContact()" detail="false" lines="none">
+      <ion-label>Contact</ion-label>
+    </ion-item>
+    <ion-item (click)="logout()" button detail="false" lines="none">
+      <ion-label>Logout</ion-label>
+    </ion-item>
+  </ion-list>
+  <div class="separator ion-margin-top"></div>
+</ion-content>

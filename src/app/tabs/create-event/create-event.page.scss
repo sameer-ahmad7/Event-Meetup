@@ -1,0 +1,241 @@
+/* Step Wrapper - Ensures Labels & Circles Stay Centered */
+
+ion-footer {
+  padding-bottom: 0 !important;
+}
+
+ion-row {
+  width: 100%;
+  display: flex;
+  padding-left: 16px;
+  padding-right: 16px;
+  margin-top: 6px;
+}
+ion-col {
+  width: 100%;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 30%;
+    left: -5px;
+    width: 100%;
+    height: 4px;
+    background-color: #ccc;
+    z-index: 0;
+  }
+
+  &:nth-child(2) {
+    &::before {
+      position: absolute;
+      top: 30%;
+      left: 20%;
+      width: 100%;
+      height: 4px;
+      background-color: #ccc;
+      z-index: 0;
+    }
+  }
+
+  &:first-child::before {
+    position: absolute;
+    top: 30%;
+    left: 20%;
+    width: 100%;
+    height: 4px;
+    background-color: #ccc;
+    z-index: 0;
+  }
+
+  .step-wrapper {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%; /* Ensure it takes full available width */
+  }
+}
+
+/* Step Circle */
+.step-circle {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background-color: #ccc;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  z-index: 3;
+}
+
+/* Active Step Circle */
+.step-circle.active {
+  background-color: #63b368;
+  transform: scale(1.1);
+}
+
+/* Step Labels */
+.step-label {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text-light);
+  font-weight: 500;
+  transition: color 0.3s ease;
+  position: relative; /* Needed for pseudo-elements */
+}
+
+/* Active Step Label */
+.step-label.active-label {
+  color: #63b368;
+  font-weight: bold;
+}
+
+ion-list {
+  ion-item {
+    ion-input#date {
+      --border-width: 0;
+    }
+    ion-icon {
+      font-size: 18px;
+    }
+    margin-top: 16px;
+  }
+}
+
+.input-fill-outline.sc-ion-input-md-h .input-bottom.sc-ion-input-md {
+  border-top: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Connecting Line After - Except Last Step */
+
+/* Active Connecting Lines */
+
+.ng-select {
+  width: 100%;
+  min-height: 44px; // Matches ion-input height
+  display: flex;
+  align-items: center;
+}
+
+ion-text {
+  &.error {
+    p {
+      font-size: 12px;
+      margin-top: 0;
+      color: var(--ion-color-danger);
+    }
+  }
+}
+
+.slider {
+  margin-top: 16px;
+  padding: 0 16px;
+  p {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .custom-slider {
+    margin-top: 6px;
+  }
+}
+
+::ng-deep {
+  .custom-slider .ngx-slider .ngx-slider-bar {
+    background: #ffe4d1;
+    height: 2px;
+  }
+  .custom-slider .ngx-slider .ngx-slider-selection {
+    background: var(--ion-color-primary);
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-pointer {
+    width: 8px;
+    height: 16px;
+    top: auto; /* to remove the default positioning */
+    bottom: 0;
+    background-color: #333;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-pointer:after {
+    display: none;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-bubble {
+    bottom: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 0;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-limit {
+    font-weight: bold;
+    color: orange;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-tick {
+    width: 1px;
+    height: 10px;
+    margin-left: 4px;
+    border-radius: 0;
+    background: #ffe4d1;
+    top: -1px;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-tick.ngx-slider-selected {
+    background: var(--ion-color-primary);
+  }
+}
+
+.search-container {
+  padding: 0 16px;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 6px;
+  height: 46px;
+  z-index: 222;
+  position: absolute;
+  top: 10px;
+  z-index: 22222;
+  .search_box {
+    background: white;
+  }
+  .search_box {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(204, 204, 204, 0.6) !important;
+    ion-input {
+      color: black;
+    }
+  }
+  ion-button {
+    --border-radius: 10px !important;
+    height: 100%;
+    min-width: 46px;
+  }
+}
+
+.price-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 16px;
+}
+
+swiper-container {
+  height: 100%;
+  swiper-slide {
+    height: 100%;
+  }
+}

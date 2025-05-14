@@ -1,0 +1,67 @@
+<ion-list class="notifications">
+  @for(participant of event().participants;track $index){
+
+  <ion-item button detail="false">
+    <ion-label>
+      <div class="content">
+        <div class="user-info">
+            @if(participant.userAvatar.imageProfileB64){
+				<div class="profile_img"            
+				   [routerLink]="participant.userAvatar.userId===userId?'/profile':'/profile/'+participant.userAvatar.userId"
+				>
+            <img
+              [src]="sharedService.getImageUrl(participant.userAvatar.imageProfileB64)"
+              alt=""
+            />
+			</div>
+            }@else {
+            <ngx-avatars
+			[routerLink]="participant.userAvatar.userId===userId?'/profile':'/profile/'+participant.userAvatar.userId"
+			[round]="true"
+			bgColor="#F1C40E"
+              [size]="43"
+              [name]="participant.userAvatar.firstName+' '+participant.userAvatar.lastName"
+            ></ngx-avatars>
+
+            }
+          <div class="title">
+            <div class="time-info">
+              <h2
+			  [routerLink]="participant.userAvatar.userId===userId?'/profile':'/profile/'+participant.userAvatar.userId"
+              >
+                {{participant.userAvatar.firstName}}&nbsp;{{participant.userAvatar.lastName}}
+              </h2>
+
+              <p>{{participant.lastChange | timeAgo}}</p>
+            </div>
+            <p>
+              @if(participant.userEventStatus === 'OWNER'){ Created the event
+              }@else if(participant.userEventStatus==='ACCEPTED'){ Joined the
+              event }@else if(participant.userEventStatus==='REJECTED'){
+              Rejected }@else if(participant.userEventStatus==='WAITING_APPROVAL'){ Requested to
+              join the event }@else if(participant.userEventStatus ===
+              'WAITING_LIST'){ Requested to queue }@else if(participant.userEventStatus==='ACCEPTED_WAITING_LIST'){ Queue }
+            </p>
+            @if(userId===event().owner.userId && ['WAITING_APPROVAL',
+            'WAITING_LIST'].includes(participant.userEventStatus)){
+            <div class="btns">
+              <ion-button
+                (click)="onClickApproveRejectButton(participant, true)"
+                color="primary"
+                >Accept</ion-button
+              >
+              <ion-button
+                (click)="onClickApproveRejectButton(participant, false)"
+                color="secondary"
+                >Decline</ion-button
+              >
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+    </ion-label>
+  </ion-item>
+
+  }
+</ion-list>

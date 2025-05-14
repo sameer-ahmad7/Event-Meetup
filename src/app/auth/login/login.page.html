@@ -1,0 +1,16 @@
+<ion-content fullscreen class="ion-padding">
+  <div
+    [class.items-center]="!isBrowserClosed"
+    class="h-full flex flex-col gap-[16px] justify-center w-full"
+  >
+    @if(isBrowserClosed){
+    <div class="logo mx-auto">
+      <img src="assets/images/logo/""_logo.png" alt="" />
+    </div>
+    <ion-button (click)="login()" expand="block"> Continue </ion-button>
+    }@else {
+    <ion-spinner name="circular"></ion-spinner>
+    <p>Redirecting...</p>
+    }
+  </div>
+</ion-content>

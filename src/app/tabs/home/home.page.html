@@ -1,0 +1,158 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      <div class="title_inner">
+        <div class="logo">
+          <img src="assets/images/logo/""_logo.png" alt="" />
+        </div>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="gotoNotifications()" class="relative" fill="clear">
+        <ion-icon
+          class="notification-icon"
+          slot="icon-only"
+          name="notifications"
+        ></ion-icon>
+        @if (notificationCount>0) {
+        <ion-badge class="notification">{{notificationCount}}</ion-badge>
+        }
+      </ion-button>
+	  @if(!isLoading){
+      <ion-segment [(ngModel)]="viewMode" mode="ios">
+        <ion-segment-button
+          value="list"
+          class="toggle-btn"
+          [class.active]="viewMode === 'list'"
+        >
+          <ion-icon name="list-outline"></ion-icon>
+        </ion-segment-button>
+
+        <ion-segment-button
+          value="map"
+          class="toggle-btn"
+          [class.active]="viewMode === 'map'"
+        >
+          <ion-icon name="map-outline"></ion-icon>
+        </ion-segment-button>
+      </ion-segment>
+	}
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-modal
+    class="filter-modal"
+    initialBreakpoint="1"
+    [breakpoints]="[0, 1]"
+    (didDismiss)="onFilterDismissed($event)"
+    [isOpen]="showFilter"
+  >
+    <ng-template>
+      <app-event-filter
+        [languages]="languages"
+        [eventSearchRequest]="eventSearchRequest"
+        [eventTypes]="eventTypes"
+      ></app-event-filter>
+    </ng-template>
+  </ion-modal>
+</ion-header>
+
+<ion-content [forceOverscroll]="true">
+  @if(isLoading){
+  <div class="flex flex-col h-full items-center justify-center">
+    <ion-spinner name="circular"></ion-spinner>
+  </div>
+  }@else{
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="chevron-down-circle-outline"
+      pullingText="Pull to refresh"
+      refreshingSpinner="circles"
+      refreshingText="Refreshing..."
+    >
+    </ion-refresher-content>
+  </ion-refresher>
+  <div class="search-container" [class.map-view]="viewMode==='map'">
+    <div class="search_box">
+      <ion-button fill="clear">
+        <ion-icon color="primary" slot="icon-only" name="location"></ion-icon>
+      </ion-button>
+      <ion-input
+        [disabled]="isLoading"
+        type="text"
+        placeholder="Insert address or location"
+        [value]="searchQuery"
+        (ionInput)="onChangeSearch($event)"
+        debounce="300"
+      ></ion-input>
+      @if(searchQuery && searchQuery.trim() && searchQuery.toLowerCase() &&
+      !isAddressLoading){
+      <ion-button (click)="onClearSearch()" fill="clear">
+        <ion-icon
+          name="close"
+          slot="icon-only"
+          color="dark"
+          class="clear-icon"
+        ></ion-icon>
+      </ion-button>
+
+      }
+    </div>
+    @if(viewMode==='map' && addressLocations.length>0 && searchQuery.trim() &&
+    isActiveSearch){
+    <div class="absolute top-[50px] left-[0] right-[0]">
+      <ion-list class="rounded-[10px] max-h-[350px] overflow-auto">
+        @for (location of addressLocations; track $index) {
+        <ion-item (click)="searchByPosition(location, true)">
+          <div class="flex gap-[2px]">
+            {{ location.formattedAddress }} {{location.country}}
+          </div>
+        </ion-item>
+
+        }
+      </ion-list>
+    </div>
+    }
+	@if(!isDataLoading){
+    <ion-button
+      class="relative"
+      color="primary"
+      (click)="showFilter=!showFilter"
+    >
+      <ion-icon name="filter" slot="icon-only"></ion-icon>
+      @if(filtersNumber>0){
+      <ion-badge class="filter-count">{{filtersNumber}}</ion-badge>
+      }
+    </ion-button>
+}
+  </div>
+  @if(viewMode==='list' && addressLocations.length>0 && searchQuery.trim() &&
+  isActiveSearch){
+  <ion-list class="rounded-[10px] max-h-[350px] overflow-auto">
+    @for (location of addressLocations; track $index) {
+    <ion-item (click)="searchByPosition(location, true)">
+      <div class="flex gap-[2px]">
+        {{ location.formattedAddress }} {{location.country}}
+      </div>
+    </ion-item>
+
+    }
+  </ion-list>
+  } @if(viewMode==='map'){
+  <app-map-view
+    [isRefreshMyLocation]="isRefreshMyLocation"
+    [userLocation]="userLocation"
+    [eventSearchRequest]="eventSearchRequest"
+    [events]="events"
+    [mapMarkers]="mapMarkers"
+    [eventsMap]="eventsMap"
+    [isRefresh]="isRefresh"
+    (onRefreshLocation)="onResetMyLocation()"
+  ></app-map-view>
+  } @if(viewMode==='list'){
+  <app-list-view
+  (onRefreshEvents)="refreshEvents()" 
+  (onRefreshLocation)="onResetMyLocation()" 
+  [events]="events"></app-list-view>
+  } }
+</ion-content>

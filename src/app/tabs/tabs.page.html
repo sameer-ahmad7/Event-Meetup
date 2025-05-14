@@ -1,0 +1,80 @@
+<ion-tabs>
+  <ion-modal
+    class="notification-modal filter-modal"
+    initialBreakpoint="1"
+    [breakpoints]="[0, 1]"
+    (didDismiss)="onNotificationDismissed($event)"
+    [isOpen]="showNotifications"
+  >
+    <ng-template>
+      <app-notification-permission></app-notification-permission>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal
+    class="location-modal filter-modal"
+    initialBreakpoint="1"
+    [breakpoints]="[0, 1]"
+    (didDismiss)="onLocationDismissed($event)"
+    [isOpen]="showLocations"
+  >
+    <ng-template>
+      <app-location-permission></app-location-permission>
+    </ng-template>
+  </ion-modal>
+
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="home" href="/tabs/home">
+      <ion-icon aria-hidden="true" name="home"></ion-icon>
+    </ion-tab-button>
+
+    <ion-tab-button tab="my-events" href="/tabs/my-events">
+      <ion-icon aria-hidden="true" name="calendar"></ion-icon>
+    </ion-tab-button>
+
+    <ion-tab-button tab="create-event" href="/tabs/create-event">
+      <ion-icon
+        color="primary"
+        aria-hidden="true"
+        name="add"
+        class="add-icon"
+      ></ion-icon>
+    </ion-tab-button>
+
+    <ion-tab-button tab="chats" href="/tabs/chats">
+      <ion-icon aria-hidden="true" name="chatbubbles"></ion-icon>
+	  @if(unreadChatCount>0){
+		<ion-badge>{{unreadChatCount}}</ion-badge>
+	  }
+    </ion-tab-button>
+
+    <ion-modal
+      (didDismiss)="onMenuDismissed($event)"
+      [isOpen]="openMenu"
+      class="home-menu-modal"
+    >
+      <ng-template>
+        <app-profile-menu [user]="user"></app-profile-menu>
+      </ng-template>
+    </ion-modal>
+
+    <!-- <ion-tab-button tab="notifications" href="/tabs/notifications">
+      <ion-icon aria-hidden="true" name="notifications"></ion-icon>
+    </ion-tab-button> -->
+    @if(user){
+    <ion-tab-button (click)="toggleMenu()">
+      <div [class.profile_img]="user.imageProfileB64">
+        @if(user.imageProfileB64){
+        <img [src]="sharedService.getImageUrl(user.imageProfileB64)" />
+        }@else {
+        <ngx-avatars
+          [size]="33"
+          [name]="user.firstName +' '+user.lastName"
+          [round]="true"
+        ></ngx-avatars>
+        }
+      </div>
+    </ion-tab-button>
+    }
+  </ion-tab-bar>
+</ion-tabs>

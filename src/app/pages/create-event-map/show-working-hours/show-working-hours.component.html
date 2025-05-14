@@ -1,0 +1,22 @@
+<div class="block">
+  <h2 class="ion-padding">Working Hours</h2>
+  @if(workingHoursInfo.length>0){
+  <ion-list>
+    @for (workingInfo of workingHoursInfo; track $index) {
+    <ion-item>
+      <ion-label>
+        <h4>{{ workingInfo.day }}</h4>
+        @for (time of workingInfo.timeIntervals; track $index) {
+        <p>{{ time.startTime }} - {{ time.endTime }}</p>
+
+        }
+      </ion-label>
+    </ion-item>
+    }
+  </ion-list>
+  }@else {
+  <div class="flex items-center justify-center">
+    <p class="ion-padding">No working hours available</p>
+  </div>
+  }
+</div>

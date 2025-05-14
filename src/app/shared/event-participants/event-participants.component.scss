@@ -1,0 +1,14 @@
+.block {
+	display: flex;
+	flex-direction: column;
+	// padding-bottom: var(--safe-area-inset-bottom) !important;
+  }
+  
+  .participant{
+	&:not(:first-child) {
+		margin-top: 10px;
+	  }
+	  border-bottom: 1px solid var(--border-line-color);
+	  padding-bottom: 10px;
+  }
+ 

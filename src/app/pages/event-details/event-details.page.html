@@ -1,0 +1,282 @@
+<ion-header>
+  @if(!isLoading){
+  <div class="header-image">
+    <img
+      [src]="event.businessClient.imageProfileB64?sharedService.getImageUrl(event.businessClient.imageProfileB64):'assets/images/mock/restaurant-mock.png'"
+    />
+    <div
+      class="flex items-start flex-col gap-[6px] absolute bottom-[0] p-[10px] w-full controls"
+    >
+      <div class="flex items-center gap-[6px]">
+        @if(event.owner.imageProfileB64){
+        <div
+          class="profile_img"
+          [routerLink]="event.owner.userId===userId?'/profile':'/profile/'+event.owner.userId"
+        >
+          <img
+            [src]="sharedService.getImageUrl(event.owner.imageProfileB64)"
+            alt=""
+          />
+        </div>
+        }@else {
+        <ngx-avatars
+          [routerLink]="event.owner.userId===userId?'/profile':'/profile/'+event.owner.userId"
+          [size]="43"
+          [name]="event.owner.firstName +' '+event.owner.lastName"
+          [round]="true"
+        ></ngx-avatars>
+        }
+
+        <h3
+          [routerLink]="event.owner.userId===userId?'/profile':'/profile/'+event.owner.userId"
+          class="text-[white]"
+        >
+          {{event.owner.firstName}}&nbsp;{{event.owner.lastName}}
+        </h3>
+      </div>
+      <div class="chip-container">
+        <ion-chip>
+          <span class="fi fi-{{event.language.isoCodeLanguage}}"></span>
+          <ion-label>{{event.language.name | titlecase}}</ion-label>
+        </ion-chip>
+        @if(event.isOffered && event.avgCostMax){
+        <ion-chip>
+          <ion-icon name="wallet"></ion-icon>
+          <ion-label> {{event.avgCostMax + 'CHF Offered'}} </ion-label>
+        </ion-chip>
+        }
+      </div>
+    </div>
+  </div>
+
+  }
+  <ion-toolbar>
+    @if(isLoading){
+    <ion-progress-bar type="indeterminate"></ion-progress-bar>
+    }@else {
+    <ion-buttons slot="start">
+      <div class="custom-btn back-btn">
+        <ion-back-button
+          defaultHref="/tabs/home"
+          text=""
+          icon="chevron-back"
+        ></ion-back-button>
+      </div>
+    </ion-buttons>
+    @if(!['CANCELLED', 'ENDED'].includes(event.status.id) && ['OWNER',
+    'ACCEPTED'].includes(event.currentUserEventStatus) || event.status.id !==
+    'CANCELLED' && event.owner.userId === this.userId ){
+    <ion-buttons slot="end">
+      <div class="custom-btn menu-btn">
+        <ion-button id="menu-trigger" fill="clear">
+          <ion-popover #popover trigger="menu-trigger" triggerAction="click">
+            <ng-template>
+              <ion-content class="ion-padding-horizontal">
+                <ion-list>
+                  @if(!['CANCELLED', 'ENDED'].includes(event.status.id) &&
+                  ['OWNER', 'ACCEPTED'].includes(event.currentUserEventStatus)){
+                  <ion-item (click)="openChat(popover)">
+                    <ion-label color="primary">Chat</ion-label>
+                  </ion-item>
+                  } @if(event.status.id !== 'CANCELLED' && event.owner.userId
+                  === this.userId){
+                  <ion-item (click)="onClickDeleteEvent(popover)">
+                    <ion-label color="danger">Delete</ion-label>
+                  </ion-item>
+                  }
+                </ion-list>
+              </ion-content>
+            </ng-template>
+          </ion-popover>
+          <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+        </ion-button>
+      </div>
+    </ion-buttons>
+
+    } }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [forceOverscroll]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="chevron-down-circle-outline"
+      pullingText="Pull to refresh"
+      refreshingSpinner="circles"
+      refreshingText="Refreshing..."
+    >
+    </ion-refresher-content>
+  </ion-refresher>
+
+  @if(!isLoading){
+  <ion-modal
+    [isOpen]="showEventSuccess"
+    class="event-success-modal"
+    (didDismiss)="onEventSuccessDismissed($event)"
+  >
+    <ng-template>
+      <app-event-success></app-event-success>
+    </ng-template>
+  </ion-modal>
+
+  <h2>{{event.name | titlecase}}</h2>
+  @if(event.currentUserEventStatus === 'WAITING_APPROVAL'){
+  <ion-chip class="event-status warning"> Waiting for approval </ion-chip>
+  } @if(event.currentUserEventStatus === 'WAITING_LIST'){
+  <ion-chip class="event-status warning"> Requested to queue </ion-chip>
+  } @if(event.currentUserEventStatus === 'ACCEPTED_WAITING_LIST'){
+  <ion-chip class="event-status warning"> Queued </ion-chip>
+
+  } @if(event.currentUserEventStatus === 'ACCEPTED'){
+  <ion-chip class="event-status"> Event Approved </ion-chip>
+  } @if(event.currentUserEventStatus === 'REJECTED'){
+  <ion-chip class="event-status danger"> Rejected </ion-chip>
+  } @if(event.status.id === 'CANCELLED'){
+  <ion-chip class="event-status danger"> Event deleted </ion-chip>
+  }@if(event.status.id === 'NOT_COMPLETED'){
+  <ion-chip class="event-status danger"> Event cancelled </ion-chip>
+  } @if((event.status.id === 'ENDED' && (event.currentUserEventStatus ===
+  'ACCEPTED' || event.owner.userId === userId))){
+  <ion-chip class="event-status secondary"> Event finished </ion-chip>
+
+  } @let participants=getEventParticipants(event.participants);
+  @if(participants.length>0){ @let remainingParticipants=participants.length-3;
+  <div class="participant-info"
+ (click)="$event.stopImmediatePropagation();openParticipants(event)" 
+  >
+    <div class="participants">
+      @for(participant of participants | slice:0:3;track $index;){
+      @if(participant.userAvatar.imageProfileB64){
+      <div
+        [routerLink]="participant.userAvatar.userId===userId?'/profile':'/profile/'+event.owner.userId"
+        class="avatar"
+      >
+        <img
+          [src]="sharedService.getImageUrl(participant.userAvatar.imageProfileB64)"
+          alt=""
+        />
+      </div>
+      }@else {
+      <div
+        [routerLink]="participant.userAvatar.userId===userId?'/profile':'/profile/'+event.owner.userId"
+        class="avatar"
+      >
+        <ngx-avatars
+		bgColor="#F1C40E"
+
+          [round]="true"
+          [size]="26"
+          [name]="participant.userAvatar.firstName+' '+participant.userAvatar.lastName"
+        ></ngx-avatars>
+      </div>
+      } } @if(remainingParticipants>0){
+      <div class="moreText avatar">+{{remainingParticipants}}</div>
+      }
+    </div>
+    <p>
+      &nbsp; / &nbsp;<b>{{event.participantSizeGroup.maxParticipants}} </b
+      >&nbsp;Max Participants
+    </p>
+  </div>
+  }
+
+  <div class="separator ion-margin-top"></div>
+
+  <div
+    class="ion-margin-top bg-(--ion-color-primary) ion-padding rounded-[12px]"
+  >
+    <div (click)="onClickBusinessAddress()" class="info">
+      <ion-icon name="location-outline"></ion-icon>
+      <p>
+        <b> {{event.businessClient.name + ', '}} </b
+        >{{getBusinessClientAddress(event)}}
+      </p>
+    </div>
+    <div class="info">
+      <ion-icon name="calendar-outline"></ion-icon>
+      <p>
+        {{event.startingDate | date: 'dd LLLL yyyy'}} | {{event.startingDate |
+        date: 'shortTime'}}
+      </p>
+    </div>
+    <div class="age-group">
+      <div class="info">
+        <ion-icon name="lock-closed-outline"></ion-icon>
+        @if(event.gender){
+        <p>{{event.gender.description | titlecase}}</p>
+        }@else {
+        <p>Open to Everyone</p>
+        }
+      </div>
+      <div class="info">
+        <ion-icon name="person-circle-outline"></ion-icon>
+        <p>
+          {{event.minAge + '-' + (event.maxAge ? event.maxAge : NO_MAX_LIMIT_AGE
+          + "+")}}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="additionalInfo ion-padding flex items-start flex-col">
+    <div class="flex flex-col items-start gap-[6px]">
+      <h4>Description</h4>
+      <p>{{event.description}}</p>
+    </div>
+    <div class="separator ion-margin-top"></div>
+  </div>
+  <ion-accordion-group value="timeline">
+    <ion-accordion value="timeline">
+      <ion-item slot="header" color="primary">
+        <ion-label> Event Timeline </ion-label>
+      </ion-item>
+      <div slot="content">
+        <app-event-history
+          (refreshData)="fetchData()"
+          [event]="event"
+        ></app-event-history>
+      </div>
+    </ion-accordion>
+  </ion-accordion-group>
+  }
+</ion-content>
+@if(!isLoading){
+<ion-footer class="ion-no-border">
+  <div class="btn-container">
+    @if(event.status.id !== 'ENDED' && event.status.id !== 'CANCELLED' &&
+    event.status.id !== 'NOT_COMPLETED'){ 
+		@if(event.currentUserEventStatus ===
+    null && event.owner.userId !== this.userId){
+    <ion-button (click)="onClickSubscribe()" expand="full" color="primary">
+      Send Request
+    </ion-button>
+
+    } @if(event.currentUserEventStatus === 'WAITING_APPROVAL'){
+    <ion-button (click)="onClickUnsubscribe()" expand="full" color="secondary">
+      Cancel Request
+    </ion-button>
+    } @if(event.currentUserEventStatus === 'ACCEPTED'){
+    <ion-button (click)="onClickUnsubscribe()" expand="full" color="danger">
+      I won't be able to come
+    </ion-button>
+    } 
+	@if(event.currentUserEventStatus === 'ACCEPTED_WAITING_LIST'){
+		<ion-button (click)="onClickUnsubscribe()" expand="full" color="danger">
+		  Leave the queue
+		</ion-button>
+		}
+	@if(event.currentUserEventStatus === 'WAITING_LIST'){
+    <ion-button (click)="onClickUnsubscribe()" expand="full" color="danger">
+        Cancel waiting list request
+    </ion-button>
+    }}
+	 @if(event.status.id === 'ENDED' && (event.currentUserEventStatus ===
+    'ACCEPTED' || event.owner.userId === userId)){
+    <ion-button (click)="onClickLeaveFeedback()" expand="full" color="primary">
+      Leave a Feedback
+    </ion-button>
+    } 
+  </div>
+</ion-footer>
+
+}

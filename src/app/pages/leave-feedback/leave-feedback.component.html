@@ -1,0 +1,116 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Feedback</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding">
+  @if(isLoading){
+  <div class="h-full flex flex-col items-center justify-center">
+    <ion-spinner name="circular"></ion-spinner>
+  </div>
+  } @else { @for (participant of filteredParticipants; track $index) {
+  <ion-card>
+    <ion-card-header (click)="togglePanel(participant.userId)">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-[10px]">
+          @if(participant.imageProfileB64){
+          <div
+            class="profile_img"
+			(click)="gotoProfile(participant.userId)"
+          >
+            <img
+              [src]="sharedService.getImageUrl(participant.imageProfileB64)"
+              alt=""
+            />
+          </div>
+          }@else {
+          <ngx-avatars
+		  (click)="gotoProfile(participant.userId)"
+		  [round]="true"
+            [size]="43"
+            [name]="participant.firstName + ' ' + participant.lastName"
+          ></ngx-avatars>
+
+          }
+
+          <h2>{{ participant.firstName }}</h2>
+        </div>
+        <ion-button fill="clear" slot="icon-only">
+          @if(expandFeedback[participant.userId]){
+          <ion-icon name="chevron-up"></ion-icon>
+          }@else{
+          <ion-icon name="chevron-down"></ion-icon>
+          }
+        </ion-button>
+      </div>
+    </ion-card-header>
+    @if(expandFeedback[participant.userId]){
+    <ion-card-content
+      [formGroup]="$any(this.feedbackFormsMap.get(participant.userId))"
+    >
+      <ion-list>
+        <ion-item>
+			@if(isFeedbackSent(participant.userId)){
+				<ion-label position="stacked"
+				>Rating</ion-label
+			  >	
+			}@else {
+				<ion-label position="stacked"
+				>Rate {{ participant.firstName }}</ion-label
+			  >
+	
+			}
+          <bar-rating
+		  (rateChange)="onRatingChanged($event,participant.userId)"
+		  formControlName="rate"
+            class="leave-feedback"
+            [readonly]="
+              feedbackFormsMap.get(participant.userId)?.disabled ? true : false
+            "
+            [max]="5"
+          />
+        </ion-item>
+        <ion-item lines="none">
+          <ion-label position="stacked">Comment</ion-label>
+          <ion-textarea
+            [placeholder]="'Say something about ' + participant.firstName"
+            autoGrow
+            [counter]="true"
+            maxlength="200"
+            formControlName="content"
+          ></ion-textarea>
+        </ion-item>
+        @if(isFeedbackSent(participant.userId)){
+        <ion-text color="primary">
+          <p>Feedback sent. Thanks!</p>
+        </ion-text>
+        }
+      </ion-list>
+      @if(!feedbackFormsMap.get(participant.userId)?.get('sent')?.value){
+      <div class="ion-margin-top btn-container">
+        <ion-button
+		(click)="onClickSendFeedback(participant.userId)"
+          [disabled]="
+            feedbackFormsMap.get(participant.userId)?.invalid
+          "
+          expand="full"
+          color="primary"
+          >Send</ion-button
+        >
+      </div>
+
+      }
+    </ion-card-content>
+    }
+  </ion-card>
+  }@empty {
+  <div class="h-full flex flex-col items-center justify-center">
+    <p>No participants to show</p>
+  </div>
+  } }
+</ion-content>

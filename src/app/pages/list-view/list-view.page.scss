@@ -1,0 +1,71 @@
+:host {
+  //   height: 100%;
+  //   display: block;
+}
+.post {
+  //   height: 100%;
+  ion-card {
+    &:not(:first-child) {
+      margin-top: 10px;
+    }
+  }
+}
+
+.gps {
+	position: fixed;
+	right: 10px;
+	box-shadow: 0 0px 10px 2px rgb(0 0 0 / 10%);
+	background: white;
+	z-index: 22222;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	bottom: 20px;
+  
+	&.active-posts {
+	  bottom: 20%;
+	}
+  
+	ion-icon {
+	  color: var(--text-light);
+	  font-size: 24px;
+	  border-radius: 50%;
+	}
+  }
+  
+
+ion-card-content {
+  h3 {
+    margin: 0;
+    font-weight: 600;
+    color: black;
+  }
+  p {
+    margin: 0;
+  }
+  ion-chip {
+    background: rgba(255, 255, 255, 0.8);
+    color: black;
+    ion-icon {
+      color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.54);
+      //   color: black;
+    }
+  }
+
+  h2 {
+    color: black;
+    font-weight: 600;
+    overflow: hidden;
+    width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}

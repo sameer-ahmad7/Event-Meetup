@@ -1,0 +1,54 @@
+.notifications {
+  height: 100%;
+  overflow: scroll;
+  padding-top: 0;
+//   padding-bottom: var(--safe-area-inset-bottom);
+  ion-item {
+    &.active {
+      background: var(--bg-secondary);
+    }
+    h2 {
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  }
+  .action-btns {
+    display: flex;
+    flex-direction: column;
+    .btns {
+      display: flex;
+      gap: 6px;
+    }
+  }
+  .time-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+  }
+  .notification-container {
+    display: flex;
+    flex-direction: column;
+  }
+  .title {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    p {
+      flex-shrink: 0;
+      color: var(--text-light);
+    }
+  }
+  .content {
+    display: flex;
+    flex-direction: column;
+  }
+  .user-info {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+}

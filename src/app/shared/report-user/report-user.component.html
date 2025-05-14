@@ -1,0 +1,41 @@
+<div class="block ion-margin-top ion-padding">
+	<ion-list>
+		<ion-item>
+			<ion-select
+			label="Reason"
+			label-placement="stacked"
+			placeholder="Select Reason"
+			[(ngModel)]="reason"
+		  >
+			@for (reason of reasons; track $index) {
+			<ion-select-option [value]="reason.key"
+			  >{{reason.value}}</ion-select-option
+			>
+
+			}
+		  </ion-select>
+
+		</ion-item>
+		<ion-item>
+			<ion-input
+			class="ion-margin-top"
+			mode="md"
+			fill="outline"
+			type="text"
+			[(ngModel)]="message"
+			placeholder="Additional Details"
+		  ></ion-input>
+		</ion-item>
+	</ion-list>
+	<div class="btn-container ion-margin-top">
+	  <ion-button
+      [disabled]="!reason || !message || (message && !message.trim())"
+      (click)="reportUser()"
+      expand="full"
+      color="primary"
+    >
+      Report
+    </ion-button>
+  
+</div>
+</div>
